@@ -14,7 +14,8 @@
 # ============================================
 
 # === CONFIGURATION ===
-$GITHUB_REPO_URL = "YOUR_GITHUB_REPO_URL"
+# If you forked or renamed, replace with your own HTTPS URL
+$GITHUB_REPO_URL = "https://github.com/Nithyon/Finora.git"
 
 if ($GITHUB_REPO_URL -eq "YOUR_GITHUB_REPO_URL") {
     Write-Host ""

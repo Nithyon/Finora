@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [crestSrc, setCrestSrc] = useState('/finora-crest.png');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,17 +45,20 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Header with Professional Crest Logo */}
         <div className="text-center mb-8">
-          {/* Finora Crest Image (PNG preferred), with SVG fallback) */}
+          {/* Finora Crest Image with runtime PNG→SVG fallback */}
           <div className="mb-8 flex justify-center">
             <div className="aspect-[5/6] w-44 sm:w-52 md:w-60 lg:w-64 rounded-xl p-2 bg-gradient-to-b from-[#0a0e27] to-[#141829] ring-1 ring-[#2d3748] shadow-[0_10px_40px_rgba(0,102,204,0.35)]">
-              <picture>
-                <source srcSet="/finora-crest.png" type="image/png" />
-                <img
-                  src="/finora-crest.svg"
-                  alt="Finora Crest"
-                  className="w-full h-full object-contain"
-                />
-              </picture>
+              <img
+                src={crestSrc}
+                alt="Finora Crest"
+                className="w-full h-full object-contain"
+                onError={() => {
+                  if (crestSrc !== '/finora-crest.svg') setCrestSrc('/finora-crest.svg');
+                }}
+                loading="eager"
+                decoding="async"
+                draggable={false}
+              />
             </div>
           </div>
 
