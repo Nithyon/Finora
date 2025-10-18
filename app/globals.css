@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* YNAB-style custom configuration */
+:root {
+  /* Primary Colors */
+  --color-primary: #0066cc;
+  --color-secondary: #5500cc;
+  --color-accent: #00d4aa;
+  
+  /* Neutrals */
+  --color-bg-primary: #0a0e27;
+  --color-bg-secondary: #141829;
+  --color-bg-tertiary: #1a1f3a;
+  
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a8aac5;
+  --color-text-tertiary: #7a7d97;
+  
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Category Colors */
+  --color-category-needs: #3b82f6;
+  --color-category-wants: #f97316;
+  --color-category-goals: #10b981;
+  --color-category-bills: #ef4444;
+}
+
+@layer base {
+  * {
+    @apply font-sans;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a];
+    @apply text-[#ffffff];
+    @apply font-['Plus_Jakarta_Sans'];
+    font-weight: 400;
+    letter-spacing: -0.3px;
+  }
+  
+  h1 {
+    @apply font-['Plus_Jakarta_Sans'] font-800 text-4xl tracking-tight;
+    letter-spacing: -0.5px;
+  }
+  
+  h2 {
+    @apply font-['Plus_Jakarta_Sans'] font-700 text-2xl;
+    letter-spacing: -0.4px;
+  }
+  
+  h3 {
+    @apply font-['Plus_Jakarta_Sans'] font-600 text-xl;
+    letter-spacing: -0.3px;
+  }
+  
+  h4, h5, h6 {
+    @apply font-['Plus_Jakarta_Sans'] font-600;
+  }
+  
+  p {
+    @apply font-['Figtree'] text-base text-[#a8aac5];
+  }
+  
+  /* Input Styling */
+  input, textarea, select {
+    @apply bg-[#1a1f3a] border border-[#2d3748] text-white;
+    @apply rounded-lg px-4 py-2 transition-colors;
+    @apply placeholder-[#7a7d97];
+    @apply focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc] focus:ring-opacity-20;
+  }
+  
+  /* Button Styling */
+  button {
+    @apply font-['Plus_Jakarta_Sans'] font-600 transition-all duration-200;
+  }
+}
+
+@layer components {
+  /* YNAB Primary Button */
+  .btn-primary {
+    @apply bg-[#0066cc] hover:bg-[#0052a3] text-white px-4 py-2.5 rounded-lg;
+    @apply font-['Plus_Jakarta_Sans'] font-600;
+    @apply transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  /* YNAB Secondary Button */
+  .btn-secondary {
+    @apply bg-[#2d3748] hover:bg-[#3d4657] text-white px-4 py-2.5 rounded-lg;
+    @apply font-['Plus_Jakarta_Sans'] font-600;
+    @apply transition-all duration-200;
+  }
+  
+  /* Card Component */
+  .card {
+    @apply bg-[#141829] border border-[#2d3748] rounded-xl p-6;
+    @apply transition-all duration-200;
+  }
+  
+  .card:hover {
+    @apply border-[#3d4657] shadow-lg;
+  }
+  
+  /* Transaction Item */
+  .transaction-item {
+    @apply flex items-center justify-between py-3 px-4;
+    @apply border-b border-[#2d3748] last:border-b-0;
+    @apply hover:bg-[#1a1f3a] rounded-lg transition-colors;
+  }
+  
+  /* Category Badge */
+  .category-badge {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm;
+    @apply bg-opacity-10 font-['Plus_Jakarta_Sans'] font-600;
+  }
+  
+  .category-badge.needs {
+    @apply bg-[#3b82f6] text-[#93c5fd];
+  }
+  
+  .category-badge.wants {
+    @apply bg-[#f97316] text-[#fed7aa];
+  }
+  
+  .category-badge.goals {
+    @apply bg-[#10b981] text-[#a7f3d0];
+  }
+  
+  .category-badge.bills {
+    @apply bg-[#ef4444] text-[#fca5a5];
+  }
+  
+  /* Budget Progress Bar */
+  .budget-progress {
+    @apply w-full bg-[#2d3748] rounded-full h-2 overflow-hidden;
+  }
+  
+  .budget-progress-fill {
+    @apply h-full bg-gradient-to-r from-[#0066cc] to-[#5500cc];
+    @apply transition-all duration-300;
+  }
+  
+  /* Money Amount */
+  .amount-positive {
+    @apply text-[#10b981] font-['Plus_Jakarta_Sans'] font-600;
+  }
+  
+  .amount-negative {
+    @apply text-[#ef4444] font-['Plus_Jakarta_Sans'] font-600;
+  }
+  
+  .amount-neutral {
+    @apply text-[#ffffff] font-['Plus_Jakarta_Sans'] font-600;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d3748;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3d4657;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-navy-dark text-gray-100;
+}
+
+.progress-bar {
+  @apply h-2 rounded-full bg-navy-light;
+}
+
+.progress-fill {
+  @apply h-full rounded-full bg-lime transition-all duration-300;
+}
