@@ -40,28 +40,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center p-4" style={{background: 'radial-gradient(circle at 50% 50%, #1e3a8a 0%, #0f172a 100%)'}}>
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header with Professional Crest Logo */}
         <div className="text-center mb-8">
-          {/* Finora Crest Image (PNG preferred), with SVG fallback */}
-          <div className="mb-6 flex justify-center">
-            <picture>
-              <source srcSet="/finora-crest.png" type="image/png" />
-              <img
-                src="/finora-crest.svg"
-                alt="Finora Crest"
-                className="w-48 h-auto rounded-md shadow-2xl object-contain"
-              />
-            </picture>
+          {/* Finora Crest Image (PNG preferred), with SVG fallback) */}
+          <div className="mb-8 flex justify-center">
+            <div className="aspect-[5/6] w-44 sm:w-52 md:w-60 lg:w-64 rounded-xl p-2 bg-gradient-to-b from-[#0a0e27] to-[#141829] ring-1 ring-[#2d3748] shadow-[0_10px_40px_rgba(0,102,204,0.35)]">
+              <picture>
+                <source srcSet="/finora-crest.png" type="image/png" />
+                <img
+                  src="/finora-crest.svg"
+                  alt="Finora Crest"
+                  className="w-full h-full object-contain"
+                />
+              </picture>
+            </div>
           </div>
 
           <h1 className="text-5xl font-bold text-white mb-2" style={{fontFamily: 'Georgia, serif'}}>FINORA</h1>
           <p className="text-blue-200 text-sm tracking-widest">FINANCIAL MASTERY</p>
         </div>
 
-        {/* Login Card - Premium Style */}
-        <div className="bg-blue-900/40 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-blue-500/20">
+        {/* Login Card - Match app navy theme */}
+        <div className="bg-[#141829] rounded-2xl p-8 shadow-2xl border border-[#2d3748]">
           <h2 className="text-2xl font-bold text-white mb-6">Welcome Back</h2>
 
           {error && (
@@ -73,7 +75,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium text-blue-100 mb-2">
+              <label className="block text-sm font-medium text-[#cbd5e1] mb-2">
                 Email Address
               </label>
               <input
@@ -81,14 +83,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-4 py-3 bg-blue-800/30 border border-blue-500/30 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
+                className="w-full px-4 py-3 bg-[#1a1f3a] border border-[#2d3748] rounded-lg text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition"
                 disabled={loading}
               />
             </div>
 
             {/* Password Input */}
             <div>
-              <label className="block text-sm font-medium text-blue-100 mb-2">
+              <label className="block text-sm font-medium text-[#cbd5e1] mb-2">
                 Password
               </label>
               <input
@@ -96,22 +98,22 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                className="w-full px-4 py-3 bg-[#1a1f3a] border border-[#2d3748] rounded-lg text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition"
                 disabled={loading}
               />
             </div>
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center text-slate-400 hover:text-slate-300 cursor-pointer">
+              <label className="flex items-center text-[#a8aac5] hover:text-[#c2c4db] cursor-pointer">
                 <input
                   type="checkbox"
-                  className="mr-2 w-4 h-4 bg-slate-700 border border-slate-600 rounded cursor-pointer"
+                  className="mr-2 w-4 h-4 bg-[#1a1f3a] border border-[#2d3748] rounded cursor-pointer"
                   disabled={loading}
                 />
                 Remember me
               </label>
-              <a href="#" className="text-blue-400 hover:text-blue-300">
+              <a href="#" className="text-[#66b3ff] hover:text-[#99ccff]">
                 Forgot password?
               </a>
             </div>
@@ -120,7 +122,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 mt-6"
+              className="w-full py-3 bg-[#0066cc] hover:bg-[#0052a3] disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200 mt-6"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -140,13 +142,13 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               disabled={loading}
-              className="py-2 px-4 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-300 text-sm font-medium rounded-lg border border-slate-600 transition"
+              className="py-2 px-4 bg-[#1a1f3a] hover:bg-[#1f2544] disabled:bg-[#1a1f3a] disabled:cursor-not-allowed text-[#cbd5e1] text-sm font-medium rounded-lg border border-[#2d3748] transition"
             >
               Google
             </button>
             <button
               disabled={loading}
-              className="py-2 px-4 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-300 text-sm font-medium rounded-lg border border-slate-600 transition"
+              className="py-2 px-4 bg-[#1a1f3a] hover:bg-[#1f2544] disabled:bg-[#1a1f3a] disabled:cursor-not-allowed text-[#cbd5e1] text-sm font-medium rounded-lg border border-[#2d3748] transition"
             >
               GitHub
             </button>
@@ -162,8 +164,8 @@ export default function LoginPage() {
         </div>
 
         {/* Demo Info */}
-        <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg text-center">
-          <p className="text-blue-300 text-sm">
+        <div className="mt-6 p-4 bg-[#0066cc]/10 border border-[#0066cc]/30 rounded-lg text-center">
+          <p className="text-[#99ccff] text-sm">
             <strong>Demo:</strong> Use any email & password to continue
           </p>
         </div>
