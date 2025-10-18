@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240" role="img" aria-label="Finora Crest">
+  <defs>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" />
+      <stop offset="50%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <!-- Top ornament (simplified) -->
+  <path d="M 100 18 L 88 36 L 95 32 L 100 25 L 105 32 L 112 36 Z" fill="#fff" />
+  <!-- Shield -->
+  <path d="M 100 50 L 40 75 L 40 120 Q 40 170 100 220 Q 160 170 160 120 L 160 75 Z" fill="url(#shield)" stroke="#fff" stroke-width="2.5"/>
+  <!-- Lion (stylized) -->
+  <g transform="translate(100, 130)" fill="#fff">
+    <ellipse cx="0" cy="0" rx="18" ry="22" />
+    <circle cx="0" cy="-26" r="12" />
+    <rect x="-15" y="10" width="6" height="18" rx="3" />
+    <rect x="9" y="10" width="6" height="18" rx="3" />
+    <path d="M 20 -5 Q 32 -10 34 5 Q 32 15 22 12" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
