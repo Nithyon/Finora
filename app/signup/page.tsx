@@ -57,8 +57,54 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="text-center mb-8">
+          {/* Finora Crest Logo */}
+          <div className="mb-6 flex justify-center">
+            <svg width="120" height="140" viewBox="0 0 120 140" className="drop-shadow-2xl">
+              {/* Shield Background */}
+              <defs>
+                <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{stopColor: '#1e40af', stopOpacity: 1}} />
+                  <stop offset="100%" style={{stopColor: '#1e3a8a', stopOpacity: 1}} />
+                </linearGradient>
+              </defs>
+              
+              {/* Ornamental Top */}
+              <path d="M 60 10 Q 45 20 40 30 Q 35 35 30 32 Q 25 30 28 38 Q 32 42 38 40 Q 50 35 60 32 Q 70 35 82 40 Q 88 42 92 38 Q 95 30 90 32 Q 85 35 80 30 Q 75 20 60 10 Z" fill="white" opacity="0.9"/>
+              
+              {/* Main Shield */}
+              <path d="M 60 35 L 25 50 L 25 75 Q 25 105 60 125 Q 95 105 95 75 L 95 50 Z" fill="url(#shieldGradient)" stroke="white" strokeWidth="2"/>
+              
+              {/* Lion Rampant */}
+              <g transform="translate(60, 70)">
+                {/* Body */}
+                <ellipse cx="0" cy="0" rx="12" ry="14" fill="white"/>
+                {/* Head */}
+                <circle cx="0" cy="-10" r="8" fill="white"/>
+                {/* Front Left Leg */}
+                <rect x="-8" y="8" width="4" height="10" fill="white"/>
+                {/* Front Right Leg */}
+                <rect x="4" y="8" width="4" height="10" fill="white"/>
+                {/* Back Left Leg */}
+                <rect x="-12" y="5" width="4" height="12" fill="white"/>
+                {/* Tail Curved */}
+                <path d="M 14 -5 Q 20 -8 22 0" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                {/* Mane */}
+                <path d="M -6 -15 Q -8 -18 -4 -20 M 0 -17 Q 0 -20 4 -18 M 6 -15 Q 8 -18 4 -20" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                {/* Crown on head */}
+                <g transform="translate(0, -12)">
+                  <circle cx="0" cy="0" r="2" fill="white"/>
+                  <path d="M -3 1 L -2 -2 L 0 1 L 2 -2 L 3 1" stroke="white" strokeWidth="1.5" fill="none"/>
+                </g>
+              </g>
+              
+              {/* Ornamental Sides */}
+              <path d="M 15 60 Q 10 65 12 75 Q 15 80 20 75" fill="none" stroke="white" strokeWidth="1.5" opacity="0.7"/>
+              <path d="M 105 60 Q 110 65 108 75 Q 105 80 100 75" fill="none" stroke="white" strokeWidth="1.5" opacity="0.7"/>
+            </svg>
+          </div>
+          
           <h1 className="text-4xl font-bold text-white mb-2">Finora</h1>
           <p className="text-slate-400">Create Your Account</p>
         </div>

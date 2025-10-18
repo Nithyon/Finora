@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function ReflectPage() {
+  useAuthProtected();
   const pathname = usePathname();
 
   const navItems = [

@@ -1,21 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { AddTransactionForm } from '@/components/AddTransactionForm';
+import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function Home() {
-  const router = useRouter();
+  useAuthProtected();
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.push('/login');
-    }
-  }, [router]);
   const [accounts] = useState([
     { id: 1, name: 'Checking', balance: 2850.50 },
     { id: 2, name: 'Savings', balance: 12000.00 },

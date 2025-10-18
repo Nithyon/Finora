@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function AccountsPage() {
+  useAuthProtected();
   const pathname = usePathname();
 
   const navItems = [
