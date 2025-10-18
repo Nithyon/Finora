@@ -7,6 +7,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-jakarta)", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Inter", "Helvetica Neue", "Arial", "Noto Sans", "Liberation Sans", "sans-serif"],
+      },
       colors: {
         navy: "#1a1f3a",
         "navy-dark": "#0f1219",
