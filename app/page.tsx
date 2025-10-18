@@ -117,6 +117,13 @@ export default function Home() {
             </Link>
           ))}
           <Link
+            href="/chat"
+            className={pathname === '/chat' ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]' : 'flex-1 py-3 text-center text-[#7a7d97]'}
+          >
+            <div className="text-lg">💬</div>
+            <div className="text-xs">Chat</div>
+          </Link>
+          <Link
             href="/settings"
             className={pathname === '/settings' ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]' : 'flex-1 py-3 text-center text-[#7a7d97]'}
           >
