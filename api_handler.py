@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-# Import the main app
+# Import the main app from backend
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'api'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 
 from main import app
 
