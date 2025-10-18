@@ -99,7 +99,7 @@ export const HuggingFaceChatbot = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 && (
               <p className="text-gray-400 text-sm">
-                Hi! I'm your budget AI assistant. Ask me about budgeting, spending, or financial tips!
+                Hi! I&apos;m your budget AI assistant. Ask me about budgeting, spending, or financial tips!
               </p>
             )}
             {messages.map((msg, i) => (

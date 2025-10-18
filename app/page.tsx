@@ -39,7 +39,7 @@ export default function Home() {
       <main className="max-w-md mx-auto px-4 pb-24 pt-6">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-1">Welcome back! 👋</h2>
-          <p className="text-sm text-[#a8aac5]">Here's your financial overview</p>
+          <p className="text-sm text-[#a8aac5]">Here&apos;s your financial overview</p>
         </div>
 
         <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 mb-6">
