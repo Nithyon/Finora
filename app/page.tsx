@@ -1,10 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
   const [accounts] = useState([
     { id: 1, name: 'Checking', balance: 2850.50 },
     { id: 2, name: 'Savings', balance: 12000.00 },
