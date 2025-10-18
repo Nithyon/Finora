@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { AddTransactionForm } from '@/components/AddTransactionForm';
 
 export default function Home() {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -99,7 +101,18 @@ export default function Home() {
           ))}
         </div>
 
-        <button className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold">+ Add Transaction</button>
+        <button 
+          onClick={() => setShowModal(true)}
+          className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition">
+          + Add Transaction
+        </button>
+
+        {showModal && (
+          <AddTransactionForm
+            onClose={() => setShowModal(false)}
+            onSuccess={() => setShowModal(false)}
+          />
+        )}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27] border-t border-[#2d3748]">
