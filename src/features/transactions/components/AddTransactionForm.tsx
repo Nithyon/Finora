@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import apiService from '@/app/services/api';
@@ -81,7 +81,7 @@ export const AddTransactionForm = ({ onSuccess, onClose }: AddTransactionFormPro
             onClick={onClose}
             className="text-gray-400 hover:text-lime text-2xl"
           >
-            ✕
+            Γ£ò
           </button>
         </div>
 
@@ -93,7 +93,7 @@ export const AddTransactionForm = ({ onSuccess, onClose }: AddTransactionFormPro
 
         {success && (
           <div className="mb-4 p-3 bg-green-500/20 border border-green-500 text-green-400 rounded text-sm">
-            ✓ Transaction added successfully!
+            Γ£ô Transaction added successfully!
           </div>
         )}
 
@@ -113,7 +113,7 @@ export const AddTransactionForm = ({ onSuccess, onClose }: AddTransactionFormPro
                       : 'bg-navy border border-lime/30 text-gray-300 hover:border-lime'
                   }`}
                 >
-                  {type === 'expense' ? '💸 Expense' : '💰 Income'}
+                  {type === 'expense' ? '≡ƒÆ╕ Expense' : '≡ƒÆ░ Income'}
                 </button>
               ))}
             </div>

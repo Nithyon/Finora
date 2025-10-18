@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 
@@ -77,7 +77,7 @@ export const HuggingFaceChatbot = () => {
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 rounded-full bg-lime px-6 py-3 font-bold text-navy-dark shadow-lg hover:bg-lime/90 transition-colors"
         >
-          💬 Budget Assistant
+          ≡ƒÆ¼ Budget Assistant
         </button>
       )}
 
@@ -91,7 +91,7 @@ export const HuggingFaceChatbot = () => {
               onClick={() => setIsOpen(false)}
               className="text-gray-400 hover:text-white"
             >
-              ✕
+              Γ£ò
             </button>
           </div>
 
@@ -143,7 +143,7 @@ export const HuggingFaceChatbot = () => {
               disabled={loading || !input.trim()}
               className="rounded bg-lime px-3 py-2 font-bold text-navy-dark hover:bg-lime/90 disabled:opacity-50 transition-colors"
             >
-              →
+              ΓåÆ
             </button>
           </div>
         </div>
