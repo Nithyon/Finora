@@ -27,22 +27,38 @@ export const HuggingFaceChatbot = () => {
     setLoading(true);
 
     try {
-      // Get user's financial data for context
+      // Determine backend URL based on environment
+      const isLocalhost = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      
+      const backendUrl = isLocalhost 
+        ? 'http://localhost:8000'
+        : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+      // Get user's financial data for context (optional)
       const [transactionsRes, totalsRes] = await Promise.all([
-        fetch('http://localhost:8000/api/transactions'),
-        fetch('http://localhost:8000/api/stats/totals'),
-      ]).catch(() => [null, null]);
+        fetch(`${backendUrl}/api/transactions`).catch(() => null),
+        fetch(`${backendUrl}/api/stats/totals`).catch(() => null),
+      ]);
 
       let context = '';
       if (transactionsRes?.ok && totalsRes?.ok) {
-        const transactions = await transactionsRes.json();
-        const totals = await totalsRes.json();
-        context = `\n\n[User Context: Income: $${totals.income.toFixed(2)}, Expenses: $${totals.expense.toFixed(2)}, Balance: $${totals.balance.toFixed(2)}, ${transactions.length} transactions]`;
+        try {
+          const transactions = await transactionsRes.json();
+          const totals = await totalsRes.json();
+          context = `\n\n[User Context: Income: $${totals.income.toFixed(2)}, Expenses: $${totals.expense.toFixed(2)}, Balance: $${totals.balance.toFixed(2)}, ${transactions.length} transactions]`;
+        } catch (e) {
+          // Silently fail context collection
+          console.log('Could not fetch context');
+        }
       }
 
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(`${backendUrl}/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ message: input + context }),
       });
 

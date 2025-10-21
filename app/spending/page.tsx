@@ -1,20 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function SpendingPage() {
   useAuthProtected();
-  const pathname = usePathname();
-
-  const navItems = [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/budget', label: 'Plan', icon: '📋' },
-    { href: '/spending', label: 'Spend', icon: '💰' },
-    { href: '/accounts', label: 'Accounts', icon: '🏦' },
-    { href: '/reflect', label: 'Reflect', icon: '📊' },
-  ];
 
   const categories = [
     { name: 'Groceries', amount: 342.50, percent: 35, icon: '🛒' },
@@ -63,32 +52,6 @@ export default function SpendingPage() {
           <p className="text-sm text-[#a8aac5]">This month to date</p>
         </div>
       </main>
-
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27] border-t border-[#2d3748]">
-        <div className="max-w-md mx-auto flex justify-around">
-          {navItems.map((item)=>(
-            <Link key={item.href} href={item.href} className={pathname===item.href?'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]':'flex-1 py-3 text-center text-[#7a7d97]'}>
-              <div className="text-lg">{item.icon}</div>
-              <div className="text-lg">{item.icon}</div>
-              <div className="text-xs">{item.label}</div>
-            </Link>
-          ))}
-          <Link
-            href="/chat"
-            className={pathname === '/chat' ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]' : 'flex-1 py-3 text-center text-[#7a7d97]'}
-          >
-            <div className="text-lg">💬</div>
-            <div className="text-xs">Chat</div>
-          </Link>
-          <Link
-            href="/settings"
-            className={pathname === '/settings' ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]' : 'flex-1 py-3 text-center text-[#7a7d97]'}
-          >
-            <div className="text-lg">⚙️</div>
-            <div className="text-xs">Settings</div>
-          </Link>
-        </div>
-      </nav>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import httpx
 import os
 from datetime import datetime, timedelta
 import json
+import re
 from typing import Optional
 
 HF_API_TOKEN = os.getenv("HUGGINGFACE_API_KEY", "")
@@ -16,34 +17,40 @@ HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
 # Store conversation history (in production, use database)
 conversation_history = {}
 
-SYSTEM_PROMPT = """You are FINORA, an intelligent budget assistant that helps users track their funds and clarify financial doubts.
+# Pre-built helpful responses for common queries
+QUICK_RESPONSES = {
+    "budget": "Based on the 50/30/20 rule: spend 50% on needs (rent, food, utilities), 30% on wants (entertainment, dining), and 20% on savings and goals. Would you like specific allocations for your income?",
+    "save": "Here are top money-saving tips: (1) Track every expense, (2) Cut unnecessary subscriptions, (3) Use the 50/30/20 budget rule, (4) Build an emergency fund, (5) Meal prep instead of dining out. Which area interests you?",
+    "category": "Common expense categories: Needs (Groceries, Utilities, Rent, Insurance), Wants (Dining, Entertainment, Shopping, Hobbies), Savings (Emergency Fund, Investments). What expenses are you categorizing?",
+    "afford": "To check if you can afford something: (1) Check your remaining monthly budget, (2) Ensure it aligns with your spending category, (3) Consider if it's a need or want, (4) Look at your savings goals. What are you considering?",
+    "goal": "To set financial goals: (1) Define what you want (emergency fund, vacation, investment), (2) Set a target amount and timeline, (3) Calculate monthly savings needed, (4) Track progress in Finora. What goal do you want to set?",
+    "spending": "I can help analyze your spending! Please share: (1) Your monthly income, (2) Major spending categories and amounts. Then I'll show you if you're on track with the 50/30/20 rule.",
+    "debt": "Debt management strategy: (1) List all debts with interest rates, (2) Consider debt snowball (smallest first) or avalanche (highest rate first), (3) Make minimum payments on all, (4) Put extra funds toward priority debt. Tell me about your debts?",
+    "invest": "Investment basics: Start with high-yield savings accounts for emergency funds, then consider index funds or ETFs for long-term growth. Consult a financial advisor for personalized advice based on your risk tolerance.",
+}
 
-Your responsibilities:
-1. FUND TRACKING: Help users understand their spending patterns, categorize expenses, and track income
-2. BUDGET ADVICE: Provide personalized budget allocation recommendations based on their spending
-3. CLARIFY DOUBTS: Answer questions about budgeting, saving, investing, and personal finance
-4. EXPENSE ANALYSIS: Help users understand where their money is going and identify savings opportunities
-5. FINANCIAL TIPS: Offer practical money-saving strategies and financial best practices
+SYSTEM_PROMPT = """You are FINORA, an intelligent budget assistant. Be concise, helpful, and action-oriented.
 
-When users ask about their finances:
-- Ask clarifying questions to understand their situation
-- Provide actionable advice
-- Suggest budget categories if they're confused
-- Recommend spending limits based on best practices (50/30/20 rule):
-  * 50% for Needs (food, rent, utilities)
-  * 30% for Wants (entertainment, dining, travel)
-  * 20% for Savings/Goals
-- Help them set financial goals
+KEY RULES:
+1. Keep responses under 150 words
+2. Give specific, actionable advice
+3. Reference the 50/30/20 rule when appropriate
+4. Be friendly and non-judgmental
+5. Focus on practical solutions
 
-Be friendly, non-judgmental, and supportive. Keep responses clear and concise (under 150 words).
-Always encourage tracking and smart budgeting.
+FINANCIAL GUIDELINES:
+- 50% for Needs (rent, food, utilities, insurance)
+- 30% for Wants (entertainment, dining, shopping)
+- 20% for Savings/Goals (emergency fund, investments, debt payoff)
 
-Available commands:
-- "Show my budget" - Display budget allocation
-- "Spending by category" - Show expense breakdown
-- "Money saving tips" - Get financial advice
-- "Goal tracking" - Help with financial goals
-- "Can I afford X?" - Budget affordability check"""
+BUDGET ADVICE:
+- Help categorize expenses
+- Analyze spending patterns
+- Suggest money-saving strategies
+- Encourage smart financial habits
+- Support goal setting
+
+Be concise and helpful. Always encourage tracking expenses."""
 
 
 class FinoraChat:
@@ -90,6 +97,7 @@ Current User Context:
     async def get_response(self, user_id: str, user_message: str, user_context: Optional[dict] = None) -> str:
         """
         Get chatbot response with context
+        Prioritizes quick responses for common queries, falls back to API if needed
         
         Args:
             user_id: User identifier
@@ -100,8 +108,29 @@ Current User Context:
             Chatbot response
         """
         
+        lower_msg = user_message.lower()
+        
+        # Check for quick responses to common queries
+        for keyword, response in QUICK_RESPONSES.items():
+            if keyword in lower_msg:
+                # Add to history
+                history = self.get_conversation_history(user_id)
+                history.append({"role": "user", "content": user_message})
+                history.append({"role": "assistant", "content": response})
+                if len(history) > 20:
+                    self.conversation_history[user_id] = history[-20:]
+                return response
+        
+        # If no quick match and no API key, provide helpful fallback
         if not HF_API_TOKEN:
-            return "Chatbot is not configured. Please set HUGGINGFACE_API_KEY environment variable."
+            return """I'm your budget assistant! I can help with:
+• Budget allocation (50/30/20 rule)
+• Expense categorization
+• Spending analysis
+• Money-saving tips
+• Financial goal setting
+
+What would you like help with?"""
         
         # Update context if provided
         if user_context:
@@ -109,29 +138,53 @@ Current User Context:
         
         # Get conversation history
         history = self.get_conversation_history(user_id)
-        
-        # Build context-aware prompt
-        system_prompt = self.build_context_prompt(user_id)
-        
-        # Add to history
         history.append({"role": "user", "content": user_message})
         
-        # Build conversation string
-        conversation = ""
-        for msg in history[-5:]:  # Keep last 5 messages for context
-            role = msg["role"].capitalize()
-            conversation += f"{role}: {msg['content']}\n"
+        # Use AI API for more complex queries
+        try:
+            response = await self._call_hf_api(user_id, user_message, history)
+            
+            # Add to history
+            history.append({"role": "assistant", "content": response})
+            
+            # Keep history size manageable
+            if len(history) > 20:
+                self.conversation_history[user_id] = history[-20:]
+            
+            return response
         
-        # Prepare request
-        full_prompt = f"{system_prompt}\n\n{conversation}\nAssistant:"
+        except Exception as e:
+            # Fallback response on API error
+            return f"""I'm having trouble with the AI right now. But I can still help with basic finance advice!
+
+Common topics I can help with:
+• Budget rules (50/30/20)
+• Spending categories
+• Money-saving tips
+
+Try asking about budgets, saving, categories, affordability, or goals!"""
+    
+    async def _call_hf_api(self, user_id: str, user_message: str, history: list) -> str:
+        """Call HuggingFace API with better error handling and response extraction"""
+        
+        # Build a more targeted prompt
+        recent_context = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in history[-3:]])
+        
+        full_prompt = f"""{SYSTEM_PROMPT}
+
+Conversation:
+{recent_context}
+
+Provide a helpful, concise response (under 200 words):"""
         
         headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
         payload = {
             "inputs": full_prompt,
             "parameters": {
-                "max_new_tokens": 150,
-                "temperature": 0.7,
-                "top_p": 0.9,
+                "max_new_tokens": 200,
+                "temperature": 0.6,
+                "top_p": 0.85,
+                "do_sample": True
             }
         }
         
@@ -148,29 +201,38 @@ Current User Context:
                     result = response.json()
                     if isinstance(result, list) and len(result) > 0:
                         text = result[0].get("generated_text", "")
-                        # Extract only the assistant's response
-                        if "Assistant:" in text:
-                            assistant_response = text.split("Assistant:")[-1].strip()
+                        
+                        # Better response extraction - remove the original prompt
+                        # Find where the prompt ends and the response begins
+                        if "Provide a helpful, concise response (under 200 words):" in text:
+                            response_text = text.split("Provide a helpful, concise response (under 200 words):")[-1].strip()
                         else:
-                            assistant_response = text.strip()
+                            response_text = text.strip()
                         
-                        # Add to history
-                        history.append({"role": "assistant", "content": assistant_response})
+                        # Clean up any remaining artifacts
+                        response_text = response_text.replace("\n\nAssistant:", "").strip()
+                        response_text = re.sub(r'^[:\s]+', '', response_text).strip()
                         
-                        # Keep history size manageable
-                        if len(history) > 20:
-                            history = history[-20:]
-                            self.conversation_history[user_id] = history
-                        
-                        return assistant_response
+                        # Ensure we have actual content
+                        if response_text and len(response_text.strip()) > 10:
+                            return response_text
+                        else:
+                            return "Let me help you with your finance question. Can you provide more details about what you'd like to know?"
+                    
                     return "I couldn't generate a response. Please try again."
+                
+                elif response.status_code == 429:
+                    return "The AI is busy right now. Please try again in a moment, or ask me about budgeting basics!"
+                elif response.status_code == 401:
+                    return "Chatbot authentication error. Please check your API configuration."
                 else:
-                    return f"API Error: {response.status_code}. Make sure your HF API key is valid."
+                    return f"Temporary issue connecting to AI. Try asking about budgeting basics or the 50/30/20 rule!"
         
         except httpx.TimeoutException:
-            return "The chatbot took too long to respond. Please try again."
+            return "The chatbot took too long to respond. Try asking about budgets or money-saving tips instead!"
         except Exception as e:
-            return f"Error connecting to chatbot: {str(e)}"
+            # Provide helpful fallback instead of error message
+            return "I'm working on your question! In the meantime, remember the 50/30/20 budget rule: 50% for needs, 30% for wants, 20% for savings. What specific area would you like help with?"
     
     def get_budget_advice(self, total_income: float) -> dict:
         """

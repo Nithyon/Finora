@@ -5,3 +5,22 @@ dist
 .env*.local
 .DS_Store
 .vercel
+
+# Documentation files - DO NOT PUSH TO GITHUB
+CHATBOT_*.md
+FREE_CHATBOT_*.md
+ANSWER_FRONTEND_DOC.md
+FRONTEND_SOURCE_CODE_FOR_CLASS.md
+START_HERE_FREE_CHATBOT.md
+FIX_ERRORS_NOW.md
+MOVE_INTEGRITY_CHECK.md
+PYLANCE_ERRORS_EXPLAINED.md
+*.zip
+
+# Setup scripts - local only
+setup-free-chatbot.bat
+setup-free-chatbot.sh
+free-backend-*.py
+free-backend-*.txt
+free-backend-Dockerfile
+

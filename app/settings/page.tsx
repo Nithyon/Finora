@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function SettingsPage() {
   useAuthProtected();
   const router = useRouter();
-  const pathname = usePathname();
   const [userEmail, setUserEmail] = useState('');
 
   // Get user email from localStorage
@@ -16,14 +15,6 @@ export default function SettingsPage() {
     const email = localStorage.getItem('user_email') || 'user@example.com';
     setUserEmail(email);
   }, []);
-
-  const navItems = [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/budget', label: 'Plan', icon: '📋' },
-    { href: '/spending', label: 'Spend', icon: '💰' },
-    { href: '/accounts', label: 'Accounts', icon: '🏦' },
-    { href: '/reflect', label: 'Reflect', icon: '📊' },
-  ];
 
   const handleLogout = () => {
     // Clear auth data
@@ -156,25 +147,6 @@ export default function SettingsPage() {
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27] border-t border-[#2d3748]">
-        <div className="max-w-md mx-auto flex justify-around">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={pathname === item.href ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]' : 'flex-1 py-3 text-center text-[#7a7d97]'}
-            >
-              <div className="text-lg">{item.icon}</div>
-              <div className="text-xs">{item.label}</div>
-            </Link>
-          ))}
-          <button className="flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc]">
-            <div className="text-lg">⚙️</div>
-            <div className="text-xs">Settings</div>
-          </button>
-        </div>
-      </nav>
     </div>
   );
 }
