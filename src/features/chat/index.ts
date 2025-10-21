@@ -3,7 +3,7 @@
 // ============================================
 
 // Components
-export { default as HuggingFaceChatbot } from './components/HuggingFaceChatbot';
+export { HuggingFaceChatbot } from './components/HuggingFaceChatbot';
 
 // Hooks
 // export { useChat } from './hooks/useChat';

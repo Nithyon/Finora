@@ -3,8 +3,8 @@
 // ============================================
 
 // Components
-export { default as AddTransactionForm } from './components/AddTransactionForm';
-export { default as TransactionList } from './components/TransactionList';
+export { AddTransactionForm } from './components/AddTransactionForm';
+export { TransactionList } from './components/TransactionList';
 
 // Hooks
 // export { useTransactions } from './hooks/useTransactions';
