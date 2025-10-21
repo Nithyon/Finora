@@ -1,17 +1,6 @@
 'use client';
 
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
-
 export default function ReflectPage() {
-  useAuthProtected();
-
-  const navItems = [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/budget', label: 'Plan', icon: '📋' },
-    { href: '/spending', label: 'Spend', icon: '💰' },
-    { href: '/accounts', label: 'Accounts', icon: '🏦' },
-    { href: '/reflect', label: 'Reflect', icon: '📊' },
-  ];
 
   const goals = [
     { name: 'Emergency Fund', target: 5000, current: 2500, icon: '🏠' },

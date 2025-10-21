@@ -1,9 +1,6 @@
 'use client';
 
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
-
 export default function BudgetPage() {
-  useAuthProtected();
 
   const budgets = [
     { cat: 'Needs', budgeted: 750, spent: 680, icon: '🏠' },

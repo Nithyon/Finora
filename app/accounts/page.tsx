@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function AccountsPage() {
-  useAuthProtected();
 
   const [accounts] = useState([
     { id: 1, name: 'Checking Account', balance: 2850.50, type: 'Checking', bank: 'Chase', icon: '🏦' },

@@ -1,11 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AddTransactionForm } from '@/components/AddTransactionForm';
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function Home() {
-  useAuthProtected();
   const [showModal, setShowModal] = useState(false);
   const [accounts] = useState([
     { id: 1, name: 'Checking', balance: 2850.50 },
@@ -89,12 +86,6 @@ export default function Home() {
           + Add Transaction
         </button>
 
-        {showModal && (
-          <AddTransactionForm
-            onClose={() => setShowModal(false)}
-            onSuccess={() => setShowModal(false)}
-          />
-        )}
       </main>
     </div>
   );

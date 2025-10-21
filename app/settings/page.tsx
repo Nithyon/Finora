@@ -3,10 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 export default function SettingsPage() {
-  useAuthProtected();
   const router = useRouter();
   const [userEmail, setUserEmail] = useState('');
 

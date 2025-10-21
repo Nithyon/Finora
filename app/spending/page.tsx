@@ -1,9 +1,6 @@
 'use client';
 
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
-
 export default function SpendingPage() {
-  useAuthProtected();
 
   const categories = [
     { name: 'Groceries', amount: 342.50, percent: 35, icon: '🛒' },

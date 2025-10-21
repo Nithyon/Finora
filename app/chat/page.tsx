@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useAuthProtected } from '@/app/hooks/useAuthProtected';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -9,7 +8,6 @@ interface Message {
 }
 
 export default function ChatbotPage() {
-  useAuthProtected();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
