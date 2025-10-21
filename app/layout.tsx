@@ -6,6 +6,7 @@ import BottomNavbar from "@/components/layout/BottomNavbar";
 export const metadata: Metadata = {
   title: "Finora - AI-Powered Budget Tracking",
   description: "Track your spending with AI insights and smart categorization",
+  // Cache bust v2
 };
 
 const jakarta = Plus_Jakarta_Sans({
