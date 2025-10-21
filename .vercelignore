@@ -1,0 +1,13 @@
+docs/
+free-backend-app.py
+free-backend-requirements.txt
+free-backend-Dockerfile
+api/
+backend/
+*.md
+setup-free-chatbot.sh
+setup-free-chatbot.bat
+DEPLOY_TO_GITHUB.bat
+DEPLOY_TO_GITHUB.ps1
+docker-compose.yml
+Dockerfile
