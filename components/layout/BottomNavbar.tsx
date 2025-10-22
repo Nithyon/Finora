@@ -14,9 +14,8 @@ export default function BottomNavbar() {
     { href: '/personalize-plan', label: 'Plan', icon: '🎯', short: 'Plan' },
     { href: '/spending', label: 'Spending', icon: '💳', short: 'Spend' },
     { href: '/accounts', label: 'Accounts', icon: '🏦', short: 'Accts' },
-    { href: '/analytics', label: 'Analytics', icon: '📊', short: 'Analysis' },
     { href: '/chat', label: 'Chat', icon: '💬', short: 'Chat' },
-    { href: '/settings', label: 'Settings', icon: '⚙️', short: 'Set' },
+    { href: '/analytics', label: 'Analytics', icon: '📊', short: 'Analyze' },
   ];
 
   return (
