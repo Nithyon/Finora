@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+// Bottom navigation bar with 7 navigation items including Analytics
 export default function BottomNavbar() {
   const pathname = usePathname();
 
