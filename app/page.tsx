@@ -227,6 +227,14 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Personalize Plan Button */}
+          <Link 
+            href="/personalize-plan"
+            className="w-full bg-gradient-to-r from-[#5500cc] to-[#0066cc] hover:from-[#440099] hover:to-[#0052a3] text-white py-3 rounded-lg font-semibold transition mb-8 inline-block text-center"
+          >
+            ⚙️ Personalize Plan
+          </Link>
+
           {/* Budget Categories */}
           <div className="mb-8">
             <h2 className="text-lg font-bold text-white mb-4">Budget Categories</h2>
