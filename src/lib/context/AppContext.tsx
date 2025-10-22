@@ -395,19 +395,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const refreshAll = async (userId: number) => {
-    setState(prev => ({ ...prev, loading: true }));
-    await Promise.all([
-      refreshAccounts(userId),
-      refreshTransactions(userId),
-      refreshBudgets(userId),
-      refreshGoals(userId),
-      refreshCategories(),
-    ]);
-    setState(prev => ({ ...prev, loading: false }));
-  };
-
   useEffect(() => {
+    const refreshAll = async (userId: number) => {
+      setState(prev => ({ ...prev, loading: true }));
+      await Promise.all([
+        refreshAccounts(userId),
+        refreshTransactions(userId),
+        refreshBudgets(userId),
+        refreshGoals(userId),
+        refreshCategories(),
+      ]);
+      setState(prev => ({ ...prev, loading: false }));
+    };
+
     const loadUser = async () => {
       const savedUser = localStorage.getItem('finora_user');
       if (savedUser) {
@@ -440,7 +440,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, user }));
     if (user) {
       localStorage.setItem('finora_user', JSON.stringify(user));
-      refreshAll(user.id);
+      // Refresh all data for this user
+      setState(prev => ({ ...prev, loading: true }));
+      Promise.all([
+        refreshAccounts(user.id),
+        refreshTransactions(user.id),
+        refreshBudgets(user.id),
+        refreshGoals(user.id),
+        refreshCategories(),
+      ]).then(() => {
+        setState(prev => ({ ...prev, loading: false }));
+      });
     } else {
       localStorage.removeItem('finora_user');
     }
