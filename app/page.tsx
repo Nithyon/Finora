@@ -46,23 +46,54 @@ export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [setupIncome, setSetupIncome] = useState('');
 
-  // Check if setup is complete
+  // Check if setup is complete and load personalized targets
   useEffect(() => {
     const setup = localStorage.getItem('finora_ynab_setup');
+    const budgetTargets = localStorage.getItem('finora_budget_targets');
+    
     if (setup) {
       const parsed = JSON.parse(setup);
       setMonthlyIncome(parsed.income);
       setReadyToAssign(parsed.income);
-      setCategories(parsed.categories || [
-        { id: 1, name: 'Groceries', icon: '🛒', assigned: 0, spent: 0, target: 15000 },
-        { id: 2, name: 'Rent', icon: '🏠', assigned: 0, spent: 0, target: 25000 },
-        { id: 3, name: 'Transportation', icon: '🚗', assigned: 0, spent: 0, target: 5000 },
-        { id: 4, name: 'Utilities', icon: '💡', assigned: 0, spent: 0, target: 3000 },
-        { id: 5, name: 'Entertainment', icon: '🎬', assigned: 0, spent: 0, target: 5000 },
-        { id: 6, name: 'Dining Out', icon: '🍽️', assigned: 0, spent: 0, target: 4000 },
-        { id: 7, name: 'Shopping', icon: '🛍️', assigned: 0, spent: 0, target: 3000 },
-        { id: 8, name: 'Savings', icon: '💰', assigned: 0, spent: 0, target: 10000 },
-      ]);
+      
+      // If budget targets were personalized, use those. Otherwise use defaults
+      if (budgetTargets) {
+        try {
+          const targets = JSON.parse(budgetTargets);
+          const mappedCategories = targets.map((t: any, idx: number) => ({
+            id: idx + 1,
+            name: t.category,
+            icon: t.icon,
+            assigned: 0,
+            spent: 0,
+            target: t.amount,
+          }));
+          setCategories(mappedCategories);
+        } catch (e) {
+          console.error('Error loading targets:', e);
+          setCategories(parsed.categories || [
+            { id: 1, name: 'Groceries', icon: '🛒', assigned: 0, spent: 0, target: 15000 },
+            { id: 2, name: 'Rent', icon: '🏠', assigned: 0, spent: 0, target: 25000 },
+            { id: 3, name: 'Transportation', icon: '🚗', assigned: 0, spent: 0, target: 5000 },
+            { id: 4, name: 'Utilities', icon: '💡', assigned: 0, spent: 0, target: 3000 },
+            { id: 5, name: 'Entertainment', icon: '🎬', assigned: 0, spent: 0, target: 5000 },
+            { id: 6, name: 'Dining Out', icon: '🍽️', assigned: 0, spent: 0, target: 4000 },
+            { id: 7, name: 'Shopping', icon: '🛍️', assigned: 0, spent: 0, target: 3000 },
+            { id: 8, name: 'Savings', icon: '💰', assigned: 0, spent: 0, target: 10000 },
+          ]);
+        }
+      } else {
+        setCategories(parsed.categories || [
+          { id: 1, name: 'Groceries', icon: '🛒', assigned: 0, spent: 0, target: 15000 },
+          { id: 2, name: 'Rent', icon: '🏠', assigned: 0, spent: 0, target: 25000 },
+          { id: 3, name: 'Transportation', icon: '🚗', assigned: 0, spent: 0, target: 5000 },
+          { id: 4, name: 'Utilities', icon: '💡', assigned: 0, spent: 0, target: 3000 },
+          { id: 5, name: 'Entertainment', icon: '🎬', assigned: 0, spent: 0, target: 5000 },
+          { id: 6, name: 'Dining Out', icon: '🍽️', assigned: 0, spent: 0, target: 4000 },
+          { id: 7, name: 'Shopping', icon: '🛍️', assigned: 0, spent: 0, target: 3000 },
+          { id: 8, name: 'Savings', icon: '💰', assigned: 0, spent: 0, target: 10000 },
+        ]);
+      }
       setTransactions(parsed.transactions || []);
       setIsSetupComplete(true);
     } else {

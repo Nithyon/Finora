@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useApp } from '@/lib/context/AppContext';
 
 interface BudgetTarget {
   id: number;
@@ -16,6 +17,7 @@ interface BudgetTarget {
 }
 
 export default function PersonalizePlanPage() {
+  const { user } = useApp();
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<BudgetTarget | null>(null);
   const [amount, setAmount] = useState('0');
@@ -35,10 +37,26 @@ export default function PersonalizePlanPage() {
     { id: 9, category: 'Travel', icon: '✈️', group: 'Wants', amount: 0, frequency: 'Monthly', dueDate: 'Last Day of the Month', repeat: true },
   ]);
 
+  // Load saved targets from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('finora_budget_targets');
+    if (saved) {
+      try {
+        setTargets(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading targets:', e);
+      }
+    }
+  }, []);
+
   const totalCost = targets.reduce((sum, t) => sum + t.amount, 0);
 
   const handleAmountInput = (value: string) => {
     setAmount(value);
+  };
+
+  const saveTargets = () => {
+    localStorage.setItem('finora_budget_targets', JSON.stringify(targets));
   };
 
   const openAmountInput = (target: BudgetTarget) => {
@@ -48,6 +66,22 @@ export default function PersonalizePlanPage() {
     setDueDate(target.dueDate);
     setRepeat(target.repeat);
     setShowAmountInput(true);
+  };
+
+  const handleSaveAmount = () => {
+    if (selectedCategory) {
+      const updatedTargets = targets.map(t =>
+        t.id === selectedCategory.id
+          ? { ...t, amount: parseFloat(amount || '0'), frequency, dueDate, repeat }
+          : t
+      );
+      setTargets(updatedTargets);
+      // Save immediately to localStorage
+      localStorage.setItem('finora_budget_targets', JSON.stringify(updatedTargets));
+      setShowAmountInput(false);
+      setSelectedCategory(null);
+      setAmount('0');
+    }
   };
 
   const groupedTargets = {
@@ -66,7 +100,13 @@ export default function PersonalizePlanPage() {
             </svg>
           </Link>
           <h1 className="text-lg font-bold text-white flex-1 text-center">Edit Plan</h1>
-          <button className="text-[#0066cc] font-semibold">Next</button>
+          <Link 
+            href="/" 
+            onClick={() => saveTargets()}
+            className="text-[#0066cc] font-semibold hover:text-[#0052a3]"
+          >
+            Next
+          </Link>
         </div>
       </header>
 
@@ -215,19 +255,7 @@ export default function PersonalizePlanPage() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  if (selectedCategory) {
-                    const updatedTargets = targets.map(t =>
-                      t.id === selectedCategory.id
-                        ? { ...t, amount: parseFloat(amount || '0'), frequency, dueDate, repeat }
-                        : t
-                    );
-                    setTargets(updatedTargets);
-                    setShowAmountInput(false);
-                    setSelectedCategory(null);
-                    setAmount('0');
-                  }
-                }}
+                onClick={handleSaveAmount}
                 className="flex-1 bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition"
               >
                 Done
