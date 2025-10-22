@@ -1,5 +1,15 @@
 # Manual Java Installation & Setup (Easiest Way)
 
+## ⚡ Quick Links (Copy & Paste)
+
+**Java 17 Download:**
+https://www.oracle.com/java/technologies/downloads/#java17
+
+**Maven 3.9.11 Download (Direct):**
+https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.zip
+
+---
+
 ## Step 1: Download Java 17
 
 1. Go to: **https://www.oracle.com/java/technologies/downloads/#java17**
@@ -32,10 +42,13 @@ If it says "not recognized", Java didn't install properly - try again.
 ## Step 4: Download Maven
 
 1. Go to: **https://maven.apache.org/download.cgi**
-2. Scroll to **"Files"** section
-3. Download: **`apache-maven-3.9.x-bin.zip`** (Binary zip, not source)
-4. Right-click and **"Extract All"**
-5. Extract to: **`C:\maven`** or **`C:\Program Files\maven`**
+2. Look for **"Binary zip archive"** under "Files" section
+3. Click: **`apache-maven-3.9.11-bin.zip`**
+   - Direct link: https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.zip
+4. File will download (~10MB)
+5. Right-click and **"Extract All"**
+6. Extract to: **`C:\maven`** (or **`C:\Program Files\maven`**)
+7. Should have: `C:\maven\bin\` and `C:\maven\lib\` folders
 
 ## Step 5: Add Maven to System PATH
 
