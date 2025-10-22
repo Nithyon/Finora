@@ -283,7 +283,7 @@ export default function Home() {
                 </Link>
               </div>
               <p className="text-sm text-[#a8aac5] mb-3">
-                You've spent <span className="text-white font-bold">₹{actualSpending.toLocaleString('en-IN')}</span> across your categories
+                You&apos;ve spent <span className="text-white font-bold">₹{actualSpending.toLocaleString('en-IN')}</span> across your categories
               </p>
               <Link 
                 href="/spending"
