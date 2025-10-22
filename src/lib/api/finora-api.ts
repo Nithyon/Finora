@@ -1,5 +1,6 @@
 // Finora API Service - Connect to HuggingFace Backend
-// Base URL: https://Nithiyon-finora-backend.hf.space
+// Backend: https://nithiyon-finora-backend.hf.space
+// Last updated: Oct 22, 2025
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nithiyon-finora-backend.hf.space';
 
