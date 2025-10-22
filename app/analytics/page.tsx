@@ -9,6 +9,8 @@ import analyticsService, {
 } from '@/lib/api/analyticsService';
 import { useApp } from '@/lib/context';
 
+// Analytics page - displays advanced financial analytics from Java microservice
+
 interface InsightData {
   message: string;
   status: string;
