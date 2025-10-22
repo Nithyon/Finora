@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import BottomNavbar from "@/components/layout/BottomNavbar";
+import { AppProvider } from "@/lib/context/AppContext";
 
 export const metadata: Metadata = {
   title: "Finora - AI-Powered Budget Tracking",
@@ -24,10 +25,12 @@ export default function RootLayout({
     <html lang="en">
       <head></head>
       <body className={`${jakarta.variable} antialiased bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] font-sans`}>
-        <div className="flex min-h-screen flex-col pb-20">
-          <main className="flex-1">{children}</main>
-          <BottomNavbar />
-        </div>
+        <AppProvider>
+          <div className="flex min-h-screen flex-col pb-20">
+            <main className="flex-1">{children}</main>
+            <BottomNavbar />
+          </div>
+        </AppProvider>
       </body>
     </html>
   );
