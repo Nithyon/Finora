@@ -175,9 +175,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Delete transaction
-  const deleteTransaction = async (id: number): Promise<void> => {
+  const deleteTransaction = async (id: number) => {
     await finoraAPI.deleteTransaction(id);
     await refreshTransactions();
+    await refreshBudgets();
+  };
     await refreshBudgets();
   };
 
@@ -211,7 +213,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Update goal
-  const updateGoal = async (id: number, data: any): Promise<Goal> => {
+  const updateGoal = async (id: number, data: any) => {
     const goal = await finoraAPI.updateGoal(id, data);
     await refreshGoals();
     return goal;
