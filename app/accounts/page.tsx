@@ -85,7 +85,7 @@ export default function AccountsPage() {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-50">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-around">
           <Link href="/" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
