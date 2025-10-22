@@ -93,7 +93,7 @@ export default function SpendingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] flex items-center justify-center">
+      <div className="w-full flex items-center justify-center py-12">
         <p className="text-white">Loading...</p>
       </div>
     );

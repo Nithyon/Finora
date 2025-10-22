@@ -31,7 +31,7 @@ export default function RootLayout({
       </head>
       <body className={`${jakarta.variable} antialiased bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] font-sans overflow-x-hidden`}>
         <AppProvider>
-          <div className="flex flex-col min-h-screen w-screen">
+          <div className="flex flex-col w-screen min-h-[100dvh]">
             <main className="flex-1 w-full overflow-y-auto pb-24">{children}</main>
             <BottomNavbar />
           </div>
