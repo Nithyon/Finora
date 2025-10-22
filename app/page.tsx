@@ -203,32 +203,32 @@ export default function Home() {
       </header>
 
       {isSetupComplete && (
-        <main className="max-w-md mx-auto px-4 pb-24 pt-6">
+        <main className="max-w-md mx-auto px-4 pb-32 pt-6">
           {/* Ready to Assign - YNAB's key feature */}
-          <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-lg p-6 mb-6 shadow-lg">
-            <p className="text-xs uppercase text-white/80 font-semibold mb-1">Ready to Assign</p>
+          <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-8">
+            <p className="text-xs uppercase text-[#e0e7ff] font-semibold tracking-wider mb-1">Ready to Assign</p>
             <h3 className="text-4xl font-bold text-white mb-2">
               ₹{readyToAssign.toLocaleString('en-IN')}
             </h3>
-            <p className="text-xs text-white/80">
+            <p className="text-sm text-[#e0e7ff]">
               Give every rupee a job! Assign money to your budget categories below.
             </p>
           </div>
 
-          {/* Budget Summary */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Budget Summary Stats */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
-              <p className="text-xs text-[#7a7d97] mb-1">Assigned</p>
-              <p className="text-xl font-bold text-white">₹{totalAssigned.toLocaleString('en-IN')}</p>
+              <p className="text-xs text-[#7a7d97] uppercase tracking-wider mb-1">Assigned</p>
+              <p className="text-2xl font-bold text-white">₹{totalAssigned.toLocaleString('en-IN')}</p>
             </div>
             <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
-              <p className="text-xs text-[#7a7d97] mb-1">Spent</p>
-              <p className="text-xl font-bold text-[#ef4444]">₹{totalSpent.toLocaleString('en-IN')}</p>
+              <p className="text-xs text-[#7a7d97] uppercase tracking-wider mb-1">Spent</p>
+              <p className="text-2xl font-bold text-[#ef4444]">₹{totalSpent.toLocaleString('en-IN')}</p>
             </div>
           </div>
 
           {/* Budget Categories */}
-          <div className="mb-6">
+          <div className="mb-8">
             <h2 className="text-lg font-bold text-white mb-4">Budget Categories</h2>
             <div className="space-y-3">
               {categories.map((category) => {
@@ -305,7 +305,7 @@ export default function Home() {
                 alert('Not enough money to auto-assign all targets!');
               }
             }}
-            className="w-full bg-[#5500cc] hover:bg-[#440099] text-white py-3 rounded-lg font-semibold transition mb-4"
+            className="w-full bg-[#5500cc] hover:bg-[#440099] text-white py-3 rounded-lg font-semibold transition mb-6"
           >
             🎯 Auto-Assign to Targets
           </button>
@@ -322,46 +322,41 @@ export default function Home() {
       {/* Bottom Navigation */}
       {isSetupComplete && (
         <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-50">
-          <div className="max-w-md mx-auto px-2 py-2">
-            <div className="flex items-center justify-around">
-              <Link href="/" className="flex flex-col items-center gap-1 px-4 py-2 text-[#0066cc]">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z"/>
-                  <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z"/>
-                  <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z"/>
-                </svg>
-                <span className="text-xs font-semibold">Budget</span>
-              </Link>
-
-              <Link href="/spending" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
-                </svg>
-                <span className="text-xs font-semibold">Spending</span>
-              </Link>
-
-              <Link href="/accounts" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 5a1 1 0 10-2 0v1H8a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V9z"/>
-                </svg>
-                <span className="text-xs font-semibold">Accounts</span>
-              </Link>
-
-              <Link href="/chat" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
-                </svg>
-                <span className="text-xs font-semibold">Chat</span>
-              </Link>
-
-              <Link href="/reflect" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clipRule="evenodd"/>
-                </svg>
-                <span className="text-xs font-semibold">Reflect</span>
-              </Link>
+          <div className="max-w-md mx-auto px-4 py-3 flex justify-around">
+            <div className="flex flex-col items-center gap-1 px-4 py-2 text-[#0066cc]">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+              </svg>
+              <span className="text-xs font-semibold">Budget</span>
             </div>
+
+            <Link href="/spending" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V7z" clipRule="evenodd"/>
+              </svg>
+              <span className="text-xs font-semibold">Spending</span>
+            </Link>
+
+            <Link href="/accounts" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+              </svg>
+              <span className="text-xs font-semibold">Accounts</span>
+            </Link>
+
+            <Link href="/chat" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
+              </svg>
+              <span className="text-xs font-semibold">Chat</span>
+            </Link>
+
+            <Link href="/reflect" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clipRule="evenodd"/>
+              </svg>
+              <span className="text-xs font-semibold">Reflect</span>
+            </Link>
           </div>
         </nav>
       )}
