@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Transaction {
   id: number;
@@ -23,17 +23,29 @@ interface UserSetupData {
   monthlyBudget: string;
 }
 
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export default function Home() {
   const [showSetupModal, setShowSetupModal] = useState(false);
+  const [setupMode, setSetupMode] = useState<'manual' | 'chat' | null>(null);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
 
-  // User setup data
+  // Manual setup data
   const [userSetup, setUserSetup] = useState<UserSetupData>({
     salary: '',
     checkingBalance: '',
     savingsBalance: '',
     monthlyBudget: '',
   });
+
+  // Chat setup
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Accounts and transactions state
   const [accounts, setAccounts] = useState<Account[]>([
@@ -62,23 +74,31 @@ export default function Home() {
     }
   }, []);
 
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const completeSetup = (data: UserSetupData) => {
+    localStorage.setItem('finora_setup', JSON.stringify(data));
+    setAccounts([
+      { id: 1, name: 'Checking', balance: parseFloat(data.checkingBalance) || 0 },
+      { id: 2, name: 'Savings', balance: parseFloat(data.savingsBalance) || 0 },
+    ]);
+    setTransactions([
+      { id: 1, desc: `Monthly Salary`, amt: parseFloat(data.salary), cat: 'Income', date: 'This month' },
+    ]);
+    setShowSetupModal(false);
+    setIsSetupComplete(true);
+  };
+
   const handleSetupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userSetup.salary || !userSetup.monthlyBudget) {
       alert('Please fill in salary and monthly budget');
       return;
     }
-    
-    localStorage.setItem('finora_setup', JSON.stringify(userSetup));
-    setAccounts([
-      { id: 1, name: 'Checking', balance: parseFloat(userSetup.checkingBalance) || 0 },
-      { id: 2, name: 'Savings', balance: parseFloat(userSetup.savingsBalance) || 0 },
-    ]);
-    setTransactions([
-      { id: 1, desc: `Monthly Salary`, amt: parseFloat(userSetup.salary), cat: 'Income', date: 'This month' },
-    ]);
-    setShowSetupModal(false);
-    setIsSetupComplete(true);
+    completeSetup(userSetup);
   };
 
   const handleSetupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +112,112 @@ export default function Home() {
   const handleResetSetup = () => {
     localStorage.removeItem('finora_setup');
     setShowSetupModal(true);
+    setSetupMode(null);
     setIsSetupComplete(false);
+    setChatMessages([]);
+  };
+
+  // Extract financial data from chat using regex patterns
+  const extractFinancialData = (text: string): Partial<UserSetupData> => {
+    const data: Partial<UserSetupData> = {};
+    
+    // Extract salary/income (look for numbers with $ or currency context)
+    const salaryMatch = text.match(/(?:salary|income|earn|make).*?[\$]?(\d+(?:,\d{3})*(?:\.\d{2})?)/i);
+    if (salaryMatch) {
+      data.salary = salaryMatch[1].replace(/,/g, '');
+    }
+
+    // Extract budget (look for "budget" mentions)
+    const budgetMatch = text.match(/(?:budget).*?[\$]?(\d+(?:,\d{3})*(?:\.\d{2})?)/i);
+    if (budgetMatch) {
+      data.monthlyBudget = budgetMatch[1].replace(/,/g, '');
+    }
+
+    // Extract checking balance
+    const checkingMatch = text.match(/(?:checking|chequing).*?[\$]?(\d+(?:,\d{3})*(?:\.\d{2})?)/i);
+    if (checkingMatch) {
+      data.checkingBalance = checkingMatch[1].replace(/,/g, '');
+    }
+
+    // Extract savings balance
+    const savingsMatch = text.match(/(?:savings).*?[\$]?(\d+(?:,\d{3})*(?:\.\d{2})?)/i);
+    if (savingsMatch) {
+      data.savingsBalance = savingsMatch[1].replace(/,/g, '');
+    }
+
+    return data;
+  };
+
+  const handleChatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    // Add user message
+    const newMessages = [...chatMessages, { role: 'user' as const, content: chatInput }];
+    setChatMessages(newMessages);
+    setChatInput('');
+    setIsLoading(true);
+
+    try {
+      // Try to extract data from user message
+      const extractedData = extractFinancialData(chatInput);
+
+      // Check if we have all required fields
+      const hasAllData = extractedData.salary && extractedData.monthlyBudget && extractedData.checkingBalance && extractedData.savingsBalance;
+
+      let assistantResponse = '';
+
+      if (extractedData.salary) {
+        assistantResponse += `✅ Got your salary: $${extractedData.salary}\n`;
+      }
+      if (extractedData.monthlyBudget) {
+        assistantResponse += `✅ Your monthly budget: $${extractedData.monthlyBudget}\n`;
+      }
+      if (extractedData.checkingBalance) {
+        assistantResponse += `✅ Checking balance: $${extractedData.checkingBalance}\n`;
+      }
+      if (extractedData.savingsBalance) {
+        assistantResponse += `✅ Savings balance: $${extractedData.savingsBalance}\n`;
+      }
+
+      if (!assistantResponse) {
+        assistantResponse = "I didn't find any financial information in your message. Could you tell me:\n• Your monthly salary\n• Your monthly budget\n• Checking account balance\n• Savings account balance\n\nFor example: \"My salary is $5000, budget is $2000, checking has $3000, and savings has $10000\"";
+      } else if (hasAllData) {
+        assistantResponse += "\n🎉 Perfect! I have all your information. Let me set up your account...";
+        
+        // Complete setup with extracted data
+        const finalSetup: UserSetupData = {
+          salary: extractedData.salary || '',
+          monthlyBudget: extractedData.monthlyBudget || '',
+          checkingBalance: extractedData.checkingBalance || '',
+          savingsBalance: extractedData.savingsBalance || '',
+        };
+
+        setTimeout(() => {
+          completeSetup(finalSetup);
+        }, 1500);
+      } else {
+        assistantResponse += "\n📝 I still need more info. Could you tell me " + 
+          [!extractedData.salary && 'your salary', 
+           !extractedData.monthlyBudget && 'your budget',
+           !extractedData.checkingBalance && 'checking balance',
+           !extractedData.savingsBalance && 'savings balance']
+          .filter(Boolean).join(', ') + "?";
+      }
+
+      setChatMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: assistantResponse }
+      ]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setChatMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: 'Sorry, I had trouble processing that. Could you try again?' }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const netWorth = accounts.reduce((sum, acc) => sum + acc.balance, 0);
@@ -106,69 +231,163 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a]">
       {/* Setup Modal */}
-      {showSetupModal && (
+      {showSetupModal && !isSetupComplete && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-8 max-w-sm w-full">
-            <h2 className="text-2xl font-bold text-white mb-2">Welcome to Finora! 👋</h2>
-            <p className="text-sm text-[#a8aac5] mb-6">Let&apos;s set up your financial profile</p>
-            
-            <form onSubmit={handleSetupSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Monthly Salary</label>
-                <input
-                  type="number"
-                  name="salary"
-                  value={userSetup.salary}
-                  onChange={handleSetupChange}
-                  placeholder="e.g., 5000"
-                  className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
-                />
+          {setupMode === null ? (
+            // Mode Selection
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-8 max-w-sm w-full">
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome to Finora! 👋</h2>
+              <p className="text-sm text-[#a8aac5] mb-8">How would you like to set up your account?</p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={() => setSetupMode('manual')}
+                  className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                >
+                  <span>📝</span> Manual Setup
+                </button>
+                <button
+                  onClick={() => {
+                    setSetupMode('chat');
+                    setChatMessages([
+                      {
+                        role: 'assistant',
+                        content: "Hi! 👋 I'm your Finora Financial Assistant. Let's set up your account! Just tell me:\n\n💰 Your monthly salary\n📊 Your monthly budget\n🏦 Your checking account balance\n💳 Your savings account balance\n\nFor example: \"My salary is $5000, I have a $2000 budget, $3000 in checking, and $10000 in savings\""
+                      }
+                    ]);
+                  }}
+                  className="w-full bg-[#5500cc] hover:bg-[#440099] text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                >
+                  <span>💬</span> Chat with Me
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Monthly Budget</label>
-                <input
-                  type="number"
-                  name="monthlyBudget"
-                  value={userSetup.monthlyBudget}
-                  onChange={handleSetupChange}
-                  placeholder="e.g., 2000"
-                  className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Checking Account Balance</label>
-                <input
-                  type="number"
-                  name="checkingBalance"
-                  value={userSetup.checkingBalance}
-                  onChange={handleSetupChange}
-                  placeholder="e.g., 3000"
-                  className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Savings Account Balance</label>
-                <input
-                  type="number"
-                  name="savingsBalance"
-                  value={userSetup.savingsBalance}
-                  onChange={handleSetupChange}
-                  placeholder="e.g., 10000"
-                  className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
-                />
-              </div>
-
+            </div>
+          ) : setupMode === 'manual' ? (
+            // Manual Setup Form
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-8 max-w-sm w-full">
               <button
-                type="submit"
-                className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition mt-6"
+                onClick={() => setSetupMode(null)}
+                className="text-xs text-[#7a7d97] hover:text-white mb-4"
               >
-                Get Started
+                ← Back
               </button>
-            </form>
-          </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Set Up Your Profile</h2>
+              <p className="text-sm text-[#a8aac5] mb-6">Enter your financial details</p>
+              
+              <form onSubmit={handleSetupSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Monthly Salary</label>
+                  <input
+                    type="number"
+                    name="salary"
+                    value={userSetup.salary}
+                    onChange={handleSetupChange}
+                    placeholder="e.g., 5000"
+                    className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Monthly Budget</label>
+                  <input
+                    type="number"
+                    name="monthlyBudget"
+                    value={userSetup.monthlyBudget}
+                    onChange={handleSetupChange}
+                    placeholder="e.g., 2000"
+                    className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Checking Account Balance</label>
+                  <input
+                    type="number"
+                    name="checkingBalance"
+                    value={userSetup.checkingBalance}
+                    onChange={handleSetupChange}
+                    placeholder="e.g., 3000"
+                    className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Savings Account Balance</label>
+                  <input
+                    type="number"
+                    name="savingsBalance"
+                    value={userSetup.savingsBalance}
+                    onChange={handleSetupChange}
+                    placeholder="e.g., 10000"
+                    className="w-full bg-[#1a1f3a] border border-[#2d3748] rounded px-4 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition mt-6"
+                >
+                  Get Started
+                </button>
+              </form>
+            </div>
+          ) : (
+            // Chat Setup
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 max-w-sm w-full h-[500px] flex flex-col">
+              <button
+                onClick={() => setSetupMode(null)}
+                className="text-xs text-[#7a7d97] hover:text-white mb-2"
+              >
+                ← Back
+              </button>
+              <div className="flex-1 overflow-y-auto mb-4 space-y-3">
+                {chatMessages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs px-4 py-2 rounded-lg text-sm ${
+                        msg.role === 'user'
+                          ? 'bg-[#0066cc] text-white'
+                          : 'bg-[#1a1f3a] text-[#a8aac5] border border-[#2d3748]'
+                      }`}
+                    >
+                      {msg.content.split('\n').map((line, i) => (
+                        <div key={i}>{line}</div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-[#1a1f3a] border border-[#2d3748] text-[#a8aac5] px-4 py-2 rounded-lg">
+                      Thinking...
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+
+              <form onSubmit={handleChatSubmit} className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Tell me your finances..."
+                  disabled={isLoading}
+                  className="flex-1 bg-[#1a1f3a] border border-[#2d3748] rounded px-3 py-2 text-white placeholder-[#7a7d97] focus:outline-none focus:border-[#0066cc] disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-[#5500cc] hover:bg-[#440099] disabled:opacity-50 text-white px-4 py-2 rounded font-semibold transition"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       )}
 
