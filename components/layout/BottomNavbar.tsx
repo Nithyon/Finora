@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// Bottom navigation bar with 7 navigation items including Analytics
+// Bottom navigation bar - 6 main navigation items with Analytics
 export default function BottomNavbar() {
   const pathname = usePathname();
 
@@ -25,7 +25,7 @@ export default function BottomNavbar() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col items-center justify-center gap-0 px-0 py-2 rounded transition-all duration-200 flex-1 ${
+            className={`flex flex-col items-center justify-center gap-0 px-1 py-2 rounded transition-all duration-200 flex-1 ${
               isActive(item.href)
                 ? 'text-[#0066cc] bg-[#0066cc]/10'
                 : 'text-[#7a7d97] hover:text-white hover:bg-[#1a1f3a]/50'
