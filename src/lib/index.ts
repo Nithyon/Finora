@@ -2,10 +2,6 @@
 // LIB EXPORTS (Main utilities)
 // ============================================
 
-// API
-export { apiService } from './api/client';
-export { default as config } from './api/config';
-
 // Utils
 export * from './utils/constants';
 export * from './utils/format';
