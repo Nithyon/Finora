@@ -2,20 +2,26 @@
 
 ## ⚡ Quick Links (Copy & Paste)
 
-**Java 17 Download:**
-https://www.oracle.com/java/technologies/downloads/#java17
+**Java 17 Windows Installer (.exe) - DOWNLOAD THIS:**
+https://download.oracle.com/java/17/latest/jdk-17_windows-x64_bin.exe
 
-**Maven 3.9.11 Download (Direct):**
+**Maven 3.9.11 Windows ZIP - DOWNLOAD THIS:**
 https://archive.apache.org/dist/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.zip
 
 ---
 
 ## Step 1: Download Java 17
 
-1. Go to: **https://www.oracle.com/java/technologies/downloads/#java17**
-2. Click **"Windows x64 Installer"**
-3. Accept terms and download (you may need to sign in - it's free)
-4. File: `jdk-17_windows-x64_bin.exe`
+**Direct link for Windows:**
+```
+https://download.oracle.com/java/17/latest/jdk-17_windows-x64_bin.exe
+```
+
+1. Click the link above or go to: https://www.oracle.com/java/technologies/downloads/#java17
+2. Select **Windows** tab
+3. Click **"Windows x64 Installer"** 
+4. Accept terms and download (free, no Oracle login required)
+5. File will be: `jdk-17_windows-x64_bin.exe` (~170MB)
 
 ## Step 2: Install Java
 
