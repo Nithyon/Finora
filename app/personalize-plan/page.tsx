@@ -37,24 +37,8 @@ export default function PersonalizePlanPage() {
 
   const totalCost = targets.reduce((sum, t) => sum + t.amount, 0);
 
-  const handleAmountInput = (num: string) => {
-    if (num === 'backspace') {
-      setAmount(amount.slice(0, -1) || '0');
-    } else if (num === 'clear') {
-      setAmount('0');
-    } else if (num === 'done' && selectedCategory) {
-      const updatedTargets = targets.map(t =>
-        t.id === selectedCategory.id
-          ? { ...t, amount: parseFloat(amount), frequency, dueDate, repeat }
-          : t
-      );
-      setTargets(updatedTargets);
-      setShowAmountInput(false);
-      setSelectedCategory(null);
-      setAmount('0');
-    } else {
-      setAmount(amount === '0' ? num : amount + num);
-    }
+  const handleAmountInput = (value: string) => {
+    setAmount(value);
   };
 
   const openAmountInput = (target: BudgetTarget) => {
@@ -180,46 +164,15 @@ export default function PersonalizePlanPage() {
               </div>
             </div>
 
-            {/* Amount Display */}
+            {/* Amount Display & Input */}
             <div className="text-center mb-8">
-              <p className="text-5xl font-bold text-[#10b981] font-mono">₹{parseFloat(amount || '0').toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
-            </div>
-
-            {/* Amount Input Grid */}
-            <div className="bg-[#0a0e27] rounded-lg p-6 mb-6">
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
-                  <button
-                    key={num}
-                    onClick={() => handleAmountInput(num.toString())}
-                    className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-4 rounded-lg transition text-lg"
-                  >
-                    {num}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Bottom Row: Clear, 0, Backspace, Done */}
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  onClick={() => handleAmountInput('clear')}
-                  className="bg-[#2d3748] hover:bg-[#3d4757] text-[#7a7d97] font-semibold py-4 rounded-lg transition"
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={() => handleAmountInput('0')}
-                  className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-4 rounded-lg transition text-lg"
-                >
-                  0
-                </button>
-                <button
-                  onClick={() => handleAmountInput('backspace')}
-                  className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-4 rounded-lg transition"
-                >
-                  ←
-                </button>
-              </div>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => handleAmountInput(e.target.value)}
+                placeholder="0"
+                className="w-full text-5xl font-bold text-[#10b981] font-mono text-center bg-transparent border-b-2 border-[#10b981] focus:outline-none focus:border-[#0066cc] placeholder-[#4a4a5a] pb-2"
+              />
             </div>
 
             {/* Additional Options */}
@@ -262,7 +215,19 @@ export default function PersonalizePlanPage() {
                 Cancel
               </button>
               <button
-                onClick={() => handleAmountInput('done')}
+                onClick={() => {
+                  if (selectedCategory) {
+                    const updatedTargets = targets.map(t =>
+                      t.id === selectedCategory.id
+                        ? { ...t, amount: parseFloat(amount || '0'), frequency, dueDate, repeat }
+                        : t
+                    );
+                    setTargets(updatedTargets);
+                    setShowAmountInput(false);
+                    setSelectedCategory(null);
+                    setAmount('0');
+                  }
+                }}
                 className="flex-1 bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition"
               >
                 Done
