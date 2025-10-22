@@ -9,12 +9,12 @@ export default function BottomNavbar() {
   const isActive = (path: string) => pathname === path;
 
   const navItems = [
-    { href: '/', label: 'Budget', icon: '🏠', short: 'Home' },
-    { href: '/personalize-plan', label: 'Plan', icon: '🎯' },
-    { href: '/spending', label: 'Spending', icon: '💳' },
-    { href: '/accounts', label: 'Accounts', icon: '🏦' },
-    { href: '/chat', label: 'Chat', icon: '💬' },
-    { href: '/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/', label: 'Budget', icon: '🏠', short: 'Budget' },
+    { href: '/personalize-plan', label: 'Plan', icon: '🎯', short: 'Plan' },
+    { href: '/spending', label: 'Spending', icon: '💳', short: 'Spend' },
+    { href: '/accounts', label: 'Accounts', icon: '🏦', short: 'Accts' },
+    { href: '/chat', label: 'Chat', icon: '💬', short: 'Chat' },
+    { href: '/settings', label: 'Settings', icon: '⚙️', short: 'Set' },
   ];
 
   return (
