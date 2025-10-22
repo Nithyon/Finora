@@ -18,10 +18,10 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
+      "@/*": ["./src/*", "./*"],
+      "@/components/*": ["./components/*", "./src/components/*"],
       "@/features/*": ["./src/features/*"],
-      "@/lib/*": ["./src/lib/*"],
+      "@/lib/*": ["./src/lib/*", "./app/utils/*"],
       "@/types/*": ["./src/types/*"]
     },
     "allowJs": true,
