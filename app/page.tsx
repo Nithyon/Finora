@@ -25,6 +25,11 @@ export default function Home() {
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
   const [readyToAssign, setReadyToAssign] = useState(0);
+  
+  // Modal state for assigning money
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<BudgetCategory | null>(null);
+  const [assignAmount, setAssignAmount] = useState('');
 
   // YNAB-style budget categories
   const [categories, setCategories] = useState<BudgetCategory[]>([
@@ -236,10 +241,9 @@ export default function Home() {
                     key={category.id}
                     className="bg-[#141829] border border-[#2d3748] rounded-lg p-4 hover:border-[#0066cc] transition cursor-pointer"
                     onClick={() => {
-                      const amount = prompt(`Assign money to ${category.name} (Available: ₹${readyToAssign})`);
-                      if (amount) {
-                        handleAssignMoney(category.id, parseFloat(amount));
-                      }
+                      setSelectedCategory(category);
+                      setAssignAmount('');
+                      setShowAssignModal(true);
                     }}
                   >
                     <div className="flex items-center justify-between mb-3">
@@ -360,6 +364,55 @@ export default function Home() {
             </div>
           </div>
         </nav>
+      )}
+
+      {/* Assign Money Modal */}
+      {showAssignModal && selectedCategory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Assign Money to {selectedCategory.name}
+            </h3>
+            
+            <p className="text-sm text-[#7a7d97] mb-4">
+              Available to assign: <span className="text-[#10b981] font-bold">₹{readyToAssign.toLocaleString('en-IN')}</span>
+            </p>
+
+            <input
+              type="number"
+              value={assignAmount}
+              onChange={(e) => setAssignAmount(e.target.value)}
+              placeholder="Enter amount"
+              className="w-full bg-[#0a0e27] border border-[#2d3748] rounded-lg px-4 py-2 text-white placeholder-[#7a7d97] focus:border-[#0066cc] focus:outline-none mb-4"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAssignModal(false);
+                  setSelectedCategory(null);
+                  setAssignAmount('');
+                }}
+                className="flex-1 bg-[#2d3748] hover:bg-[#3d4758] text-white py-2 rounded-lg font-semibold transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (assignAmount && selectedCategory) {
+                    handleAssignMoney(selectedCategory.id, parseFloat(assignAmount));
+                    setShowAssignModal(false);
+                    setSelectedCategory(null);
+                    setAssignAmount('');
+                  }
+                }}
+                className="flex-1 bg-[#0066cc] hover:bg-[#0052a3] text-white py-2 rounded-lg font-semibold transition"
+              >
+                Assign
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
