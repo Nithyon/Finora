@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Frontend + FastAPI Backend
   finora:
     build: .
     ports:
@@ -10,6 +11,7 @@ services:
       - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
       - DATABASE_URL=${DATABASE_URL:-sqlite:///./finora.db}
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_ANALYTICS_API=http://localhost:8081
       - NODE_ENV=production
     volumes:
       - ./finora.db:/app/finora.db
@@ -20,3 +22,31 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    depends_on:
+      - analytics
+
+  # Java Analytics Microservice
+  analytics:
+    build:
+      context: ./backend-java
+      dockerfile: Dockerfile
+    container_name: finora-analytics
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - FINORA_API_URL=http://finora:8000
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/analytics/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - finora-network
+
+networks:
+  finora-network:
+    driver: bridge

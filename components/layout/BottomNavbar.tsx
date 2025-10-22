@@ -13,6 +13,7 @@ export default function BottomNavbar() {
     { href: '/personalize-plan', label: 'Plan', icon: '🎯', short: 'Plan' },
     { href: '/spending', label: 'Spending', icon: '💳', short: 'Spend' },
     { href: '/accounts', label: 'Accounts', icon: '🏦', short: 'Accts' },
+    { href: '/analytics', label: 'Analytics', icon: '📊', short: 'Analysis' },
     { href: '/chat', label: 'Chat', icon: '💬', short: 'Chat' },
     { href: '/settings', label: 'Settings', icon: '⚙️', short: 'Set' },
   ];
@@ -31,8 +32,8 @@ export default function BottomNavbar() {
             }`}
             title={item.label}
           >
-            <span className="text-lg leading-none">{item.icon}</span>
-            <span className="text-[8px] font-semibold leading-tight text-center">{item.short || item.label}</span>
+            <span className="text-base leading-none">{item.icon}</span>
+            <span className="text-[7px] font-semibold leading-tight text-center">{item.short || item.label}</span>
           </Link>
         ))}
       </div>
