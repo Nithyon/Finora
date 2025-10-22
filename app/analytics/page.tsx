@@ -6,7 +6,7 @@ import analyticsService, {
   SpendingForecast,
   CategoryBreakdown,
   BudgetTracking,
-} from '@/lib/api/analyticsService';
+} from '../utils/analyticsClient';
 import { useApp } from '@/lib/context';
 
 // Analytics page - displays advanced financial analytics from Java microservice

@@ -4,6 +4,7 @@ free-backend-requirements.txt
 free-backend-Dockerfile
 api/
 backend/
+backend-java/
 *.md
 setup-free-chatbot.sh
 setup-free-chatbot.bat
