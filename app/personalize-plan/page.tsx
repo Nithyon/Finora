@@ -186,28 +186,36 @@ export default function PersonalizePlanPage() {
             </div>
 
             {/* Amount Input Grid */}
-            <div className="bg-[#0a0e27] rounded-lg p-4 mb-6">
-              <div className="grid grid-cols-3 gap-3">
+            <div className="bg-[#0a0e27] rounded-lg p-6 mb-6">
+              <div className="grid grid-cols-3 gap-3 mb-3">
                 {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
                   <button
                     key={num}
                     onClick={() => handleAmountInput(num.toString())}
-                    className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-3 rounded-lg transition"
+                    className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-4 rounded-lg transition text-lg"
                   >
                     {num}
                   </button>
                 ))}
               </div>
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              
+              {/* Bottom Row: Clear, 0, Backspace, Done */}
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => handleAmountInput('clear')}
-                  className="bg-[#2d3748] hover:bg-[#3d4757] text-[#7a7d97] font-semibold py-3 rounded-lg transition col-span-2"
+                  className="bg-[#2d3748] hover:bg-[#3d4757] text-[#7a7d97] font-semibold py-4 rounded-lg transition"
                 >
                   Clear
                 </button>
                 <button
+                  onClick={() => handleAmountInput('0')}
+                  className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-4 rounded-lg transition text-lg"
+                >
+                  0
+                </button>
+                <button
                   onClick={() => handleAmountInput('backspace')}
-                  className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-3 rounded-lg transition"
+                  className="bg-[#2d3748] hover:bg-[#3d4757] text-white font-semibold py-4 rounded-lg transition"
                 >
                   ←
                 </button>
