@@ -22,50 +22,72 @@ export default function ChatbotPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const generateResponse = (userInput: string): string => {
+    const input = userInput.toLowerCase().trim();
+
+    // MOST SPECIFIC MATCHES FIRST (longer/more specific queries)
+    if ((input.includes('have') && input.includes('$10')) || input.includes('10k') || input.includes('10000')) {
+      if (input.includes('spend') || input.includes('budget') || input.includes('can i') || input.includes('allocation')) {
+        return `💰 Your $10,000 Budget Breakdown:\n\nGreat question! Here's how you should ideally use $10,000:\n\n📍 Smart Allocation (50/30/20 Rule):\n• Needs (50%): $5,000 - Essential expenses\n  └ Rent, utilities, groceries, insurance\n• Wants (30%): $3,000 - Entertainment & fun\n  └ Dining out, hobbies, shopping\n• Savings (20%): $2,000 - Emergency fund\n  └ For unexpected situations\n\n🎯 Monthly Spending Plan:\n• You can spend: $5,000 (needs) + $3,000 (wants) = $8,000/month\n• Keep in emergency fund: $2,000\n\n💡 Why this matters:\n✅ Needs are covered (you won't go hungry)\n✅ You get to enjoy life (wants are 30%)\n✅ You're protected if something breaks (emergency fund)\n✅ This is the balanced approach to money\n\n🚀 Pro tip: This 50/30/20 rule works at ANY income level!`;
+      }
+    }
+
+    if (input.includes('how much can i spend') || input.includes('can i afford')) {
+      return `💰 How Much Can You Spend?\n\nGreat question! Here's the simple answer:\n\n📊 Use the 50/30/20 Rule:\nOut of every dollar you earn:\n• 50¢ goes to NEEDS (housing, food, utilities)\n• 30¢ goes to WANTS (fun, entertainment, dining out)\n• 20¢ goes to SAVINGS (emergency fund, investments)\n\n💡 Example with $5,000/month income:\n• Needs budget: $2,500/month\n• Wants budget: $1,500/month ← This is what you can "freely" spend\n• Savings: $1,000/month\n\nTotal you can comfortably spend: $4,000/month\n\n✅ Benefits:\n• You have money for fun\n• Bills are covered\n• You're building savings\n• No stress about money\n\n🎯 Action: Calculate YOUR number based on your income!`;
+    }
+
+    if (input.includes('budget')) {
+      return `📊 What is a Budget? (Simple Explanation)\n\nA budget is just a PLAN for your money. Like a roadmap!\n\n💭 Think of it like this:\nImagine you have $100 to spend. A budget helps you decide:\n• $50 for food (NEEDS - essential)\n• $30 for movies (WANTS - fun)\n• $20 in savings (FUTURE - safety net)\n\n📌 The 50/30/20 Rule (Best Method):\n• 50% for NEEDS: Rent, food, utilities, transportation, insurance\n• 30% for WANTS: Entertainment, dining out, hobbies, shopping\n• 20% for SAVINGS: Emergency fund, debt payment, investments\n\n💡 Real Example ($5,000/month salary):\n• NEEDS: $2,500 (housing, groceries)\n• WANTS: $1,500 (Netflix, dining out, fun)\n• SAVINGS: $1,000 (emergency fund, investments)\n\n✅ Why budgeting works:\n✓ You know where your money goes\n✓ You can enjoy life without guilt\n✓ You'll have emergency money\n✓ You'll reach your financial goals faster\n✓ Less financial stress!\n\n🎯 Start today: Track what you spent yesterday!`;
+    }
+
+    if (input.includes('how much should i save') || input.includes('how much to save')) {
+      return `🏦 How Much Should You Save?\n\nSimple answer: Save 20% of everything you earn!\n\n📈 The Rule:\nFor every $100 you make → Save $20\n\n💡 Examples:\n• If you earn $1,000/month → Save $200/month\n• If you earn $5,000/month → Save $1,000/month\n• If you earn $10,000/month → Save $2,000/month\n\n🎯 Why 20%?\nIt's enough to:\n✅ Build an emergency fund\n✅ Handle unexpected expenses\n✅ Reach your goals (vacation, car, house)\n✅ Still have money for fun NOW\n\n💰 Emergency Fund Targets:\n1. First goal: Save $1,000 (covers small emergencies)\n2. Next goal: 3 months of living expenses\n3. Ultimate goal: 6 months of living expenses\n\n📊 Example:\nIf your monthly expenses are $2,000:\n• 3-month fund: $6,000\n• 6-month fund: $12,000\n\n🚀 How to save:\n1. Automate it! Set savings transfer on payday\n2. Start small if needed ($50/month is great!)\n3. Increase by 1% each month\n4. Celebrate milestones!\n\n💡 Pro tip: "Pay yourself first" - Save BEFORE spending!`;
+    }
+
+    if (input.includes('spend') && !input.includes('how much')) {
+      return `💳 Understanding Spending\n\nSpending is using money to buy things or pay for services.\n\n📍 Two Types of Spending:\n\n1️⃣ NEEDS (50% of your budget)\nThings you MUST have:\n• Rent or mortgage\n• Groceries & food\n• Utilities (electricity, water, internet)\n• Transportation (car, bus, bike)\n• Insurance\n• Healthcare\n• Phone\n→ Without these, life becomes very difficult\n\n2️⃣ WANTS (30% of your budget)\nThings you ENJOY but don't need:\n• Dining out at restaurants\n• Netflix, Spotify, subscriptions\n• Shopping clothes, gadgets\n• Movies, concerts, entertainment\n• Hobbies (gaming, sports, travel)\n• Coffee at fancy cafes\n→ These make life enjoyable!\n\n💡 Key Insight:\nMost people struggle because they spend 80% on wants and only 20% on needs. REVERSE this!\n\n✅ Smart Spending Strategy:\n1. List ALL your expenses\n2. Mark each as NEED or WANT\n3. See your real spending\n4. Make adjustments\n5. Save the difference!\n\n🎯 Challenge: Track your spending for 1 week!`;
+    }
+
+    if (input.includes('goal') || input.includes('target')) {
+      return `🎯 How to Set Financial Goals\n\nFinancial goals are things you want to ACHIEVE with money.\n\n📍 Types of Goals:\n\n⏰ SHORT-TERM (1-12 months):\n• Save $500 for new phone\n• Build $1,000 emergency fund\n• Pay off credit card\n• Save for birthday gift\n→ You can do these soon!\n\n📅 MEDIUM-TERM (1-5 years):\n• Save $15,000 for car down payment\n• Save $10,000 for vacation\n• Build $10,000 emergency fund\n• Pay off student debt\n→ Takes time but very achievable\n\n🏠 LONG-TERM (5+ years):\n• Save for house down payment\n• Retirement savings\n• College fund for kids\n• Build $100,000+ in investments\n→ Start now, benefit later\n\n✅ How to Make Goals Work:\n1. Be SPECIFIC about the amount\n   ❌ Bad: "I want to save money"\n   ✅ Good: "I want to save $5,000"\n\n2. Set a DEADLINE\n   ❌ Bad: "Sometime"\n   ✅ Good: "By December 2025"\n\n3. Break it into MONTHLY STEPS\n   Example: $5,000 in 12 months = $417/month\n\n4. AUTOMATE the savings\n   Set it and forget it!\n\n5. TRACK your progress\n   Watch the number grow! 📈\n\n6. CELEBRATE milestones\n   Save $1,000? Celebrate! 🎉\n\n🚀 Your First Goal:\nWhat's something you want in the next 3 months?`;
+    }
+
+    if (input.includes('emergency fund') || input.includes('emergency')) {
+      return `🚨 Emergency Fund - Your Financial Safety Net\n\nWhat is it?\nMoney you set aside for unexpected situations when you NEED cash immediately.\n\n💡 Real Examples:\n• Car breaks down: $1,500 repair needed\n• Medical emergency: Hospital bills\n• Job loss: You need money while finding new job\n• Home repair: Roof leak, water heater breaks\n• Pet emergency: Vet bills\n\n💰 How Much to Save:\n\nPhase 1 (STARTER):\n• Target: $1,000\n• Why: Covers 80% of emergencies\n• Timeline: 2-3 months\n\nPhase 2 (BASIC):\n• Target: $3,000-$5,000\n• Why: Covers 3 months of living expenses\n• Timeline: 6-12 months\n\nPhase 3 (COMPLETE):\n• Target: $10,000-$20,000\n• Why: Covers 6 months of living expenses\n• Timeline: 1-2 years\n\n📊 Calculate YOUR target:\nMonthly expenses × 3-6 months = Your goal\n\n✅ Why it's CRITICAL:\n✓ Avoid credit card debt in emergency\n✓ Sleep better at night\n✓ Can take risks (job change, education)\n✓ Don't burden family/friends\n✓ Handle life's surprises\n\n🎯 How to Build It:\n1. Open a separate savings account\n2. Start with ANY amount ($50/month is great!)\n3. Don't touch it unless REAL emergency\n4. Celebrate reaching $1,000! 🎉\n5. Keep growing it\n\n💡 Pro tip: Put it in a separate bank so you won't spend it!`;
+    }
+
+    if (input.includes('save') || input.includes('saving')) {
+      return `💡 Money Saving Tips - Simple Ways to Keep More Money\n\n🎯 EASY ACTIONS (Start Today):\n1. Track your spending for 1 week\n   → See where money actually goes\n\n2. Cancel subscriptions you don't use\n   → That unused gym? $30 saved!\n\n3. Use public transport instead of taxi\n   → Save $100-200/month\n\n4. Cook at home instead of dining out\n   → Restaurant meal: $15 vs Home meal: $3\n\n5. Use cashback apps\n   → Get 1-2% back on purchases\n\n6. Shop with a list at grocery store\n   → Avoid impulse buying\n\n7. Wait 24 hours before buying\n   → Most impulse purchases are forgotten!\n\n8. Automate savings on payday\n   → Money moves to savings FIRST\n\n💪 BIGGER CHANGES (More Savings):\n1. Find a side hustle\n   → Extra $200-500/month\n\n2. Reduce housing costs\n   → Roommate? Save $200-500/month\n\n3. Switch to cheaper insurance\n   → Compare car/health insurance\n\n4. Cut expensive subscriptions\n   → Premium services you don't need\n\n5. Learn to DIY\n   → Haircut at home, nail care, etc.\n\n6. Build passive income\n   → Money while you sleep!\n\n🚀 THE ULTIMATE STRATEGY:\n"Pay Yourself First"\n→ On payday, move 20% to savings FIRST\n→ Then spend the rest\n→ Works 100% better than trying to save leftover!\n\n📈 The Impact:\n• Saving $100/month = $1,200/year\n• Saving $300/month = $3,600/year\n• Saving $500/month = $6,000/year\n\n🎯 Start with ONE thing this week!`;
+    }
+
+    if (input.includes('hello') || input.includes('hi')) {
+      return `👋 Hey there!\n\nI'm your Finora Financial Assistant!\n\n💬 I can help you understand:\n• What is budgeting?\n• How much should I save?\n• What are needs vs wants?\n• How much can I spend?\n• How to set financial goals?\n• Emergency funds explained\n• Money-saving tips\n• And more!\n\n💡 Try asking me:\n• "What is a budget?"\n• "I have $10k, how much can I spend?"\n• "How much should I save?"\n• "How do I set goals?"\n\nWhat would you like to learn? 😊`;
+    }
+
+    // DEFAULT: suggest topics
+    return `💡 Great question! I'm here to help.\n\n📚 Popular topics I can explain simply:\n\n💰 MONEY BASICS:\n• "What is a budget?"\n• "How much should I save?"\n• "How much can I spend?"\n• "What is an emergency fund?"\n\n🛍️ SPENDING & SAVING:\n• "What are needs vs wants?"\n• "How can I save money?"\n• "Tips to spend less?"\n\n🎯 PLANNING:\n• "How do I set financial goals?"\n• "I have $10k, what should I do?"\n• "How to build emergency fund?"\n\n💡 Try asking any of these in your own words!`;
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    // Add user message
     const userMessage: Message = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setLoading(true);
 
     try {
-      // Simulate AI response with delay
+      // Simulate thinking delay
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const userInput = input.toLowerCase();
-      let response = '';
-
-      // Smart responses with explanations
-      if (userInput.includes('current budget') || userInput.includes('how much can i spend') || userInput.includes('$10k') || userInput.includes('$10000') || (userInput.includes('have') && userInput.includes('spend'))) {
-        response = `💰 Your Current Budget Breakdown:\n\nIf you have $10,000 in your bank account, here's how much you should ideally allocate:\n\n📍 Monthly Spending Plan:\n• Needs (50%): $5,000 - for essential expenses\n• Wants (30%): $3,000 - for fun and entertainment  \n• Savings (20%): $2,000 - for emergencies and goals\n\n🎯 This means:\n• You can safely spend $8,000/month\n• Keep $2,000 for emergencies\n\n💡 Pro tip: Emergency fund should cover 3-6 months of living expenses!`;
-      } else if (userInput.includes('budget')) {
-        response = `📊 Let me explain your budget:\n\nYour monthly budget is the total amount you plan to spend each month. It's like your spending plan!\n\n💡 Smart budgeting follows the 50/30/20 rule:\n• 50% for NEEDS (housing, food, utilities)\n• 30% for WANTS (entertainment, dining out)\n• 20% for SAVINGS & DEBT\n\nFor example, if you make $5,000/month:\n• Needs: $2,500\n• Wants: $1,500\n• Savings: $1,000\n\n✅ This helps you balance spending with saving for the future!`;
-      } else if (userInput.includes('how much should i save')) {
-        response = `🏦 How Much Should You Save?\n\nGreat question! Here's the simple answer:\n\n📈 The 50/30/20 Rule:\n• SAVE 20% of your income every month\n\nExample:\n• If you earn $5,000/month → Save $1,000/month\n• If you earn $10,000/month → Save $2,000/month\n\n🎯 Emergency Fund Goal:\n• Aim to save 3-6 months of living expenses\n• This protects you from unexpected situations\n\n✨ Benefits of consistent saving:\n• Financial security & peace of mind\n• Reach your goals faster (vacation, car, house)\n• Less stress about money\n• Build wealth over time\n\nStart small if needed - even $100/month counts!`;
-      } else if (userInput.includes('spending')) {
-        response = `📊 Understanding Your Spending:\n\nSpending is money you use to buy things or pay for services.\n\n💭 Types of Spending:\n\n1️⃣ NEEDS (50%) - Essential & necessary:\n   • Rent/Mortgage\n   • Groceries & food\n   • Utilities (electricity, water)\n   • Transportation\n   • Insurance\n\n2️⃣ WANTS (30%) - Fun & enjoyable:\n   • Dining out\n   • Movies & entertainment\n   • Hobbies\n   • Shopping\n   • Subscriptions\n\n3️⃣ SAVINGS & DEBT (20%):\n   • Emergency fund\n   • Debt payments\n   • Investments\n\n💡 Track your spending to see where your money goes!`;
-      } else if (userInput.includes('goal') || userInput.includes('target')) {
-        response = `🎯 How to Set Financial Goals:\n\nFinancial goals are things you want to achieve with your money.\n\n📍 Examples of Good Goals:\n\nShort-term (1-12 months):\n• Save $2,000 for vacation\n• Build $1,000 emergency fund\n• Pay off small debt\n\nMedium-term (1-5 years):\n• Save $15,000 for car down payment\n• Build $10,000 emergency fund\n• Start investing\n\nLong-term (5+ years):\n• Save for house down payment\n• Retirement planning\n• Build $100,000+ in savings\n\n✅ How to achieve goals:\n1. Be specific about the amount\n2. Set a deadline\n3. Break it into monthly steps\n4. Track your progress\n5. Celebrate milestones!\n\nFor example: "I want to save $5,000 in 12 months" = $417/month`;
-      } else if (userInput.includes('save') || userInput.includes('save money')) {
-        response = `💡 Money Saving Tips:\n\nHere are simple ways to save more money:\n\n🎯 Easy Actions:\n1. Track every expense - see where money goes\n2. Use the 50/30/20 budget rule\n3. Cut unnecessary subscriptions\n4. Cook at home instead of dining out\n5. Use public transport or carpool\n6. Set up automatic savings transfers\n7. Avoid impulse purchases - wait 24 hours\n8. Use cashback apps and rewards programs\n\n💪 Bigger Changes:\n• Find a side hustle for extra income\n• Reduce housing costs if possible\n• Switch to cheaper insurance\n• Build passive income streams\n\n🚀 Pro Strategy:\n"Pay yourself first" - Move 20% of your income to savings BEFORE spending on wants!\n\nStart with ONE action this week. Small steps = big results! 💰`;
-      } else if (userInput.includes('emergency fund')) {
-        response = `🚨 Emergency Fund - Your Financial Safety Net:\n\nWhat is it?\nMoney set aside for unexpected expenses like medical bills, car repairs, or job loss.\n\n💰 How Much to Save:\n• Starter goal: $1,000 (first 3 months)\n• Basic: $3,000-$5,000 (3 months living expenses)\n• Ideal: $10,000-$20,000 (6 months living expenses)\n\n📊 Example:\nIf your monthly expenses are $2,000:\n• Beginner target: $6,000\n• Complete target: $12,000\n\n✅ Why it matters:\n• Avoid going into debt during emergencies\n• Sleep better at night knowing you're prepared\n• Freedom to take risks (job change, education)\n• Don't need to borrow from family\n\n🎯 How to Build It:\n• Start with $50-100/month\n• When it reaches $1,000, celebrate!\n• Keep building to 3-6 months expenses\n• Keep it in a separate savings account\n\nThis is your most important safety cushion! �️`;
-      } else if (userInput.includes('hello') || userInput.includes('hi')) {
-        response = 'Hey there! 👋\n\nI\'m your Finora Financial Assistant. I\'m here to help you understand money better!\n\n💬 You can ask me about:\n• How to budget your money\n• Understanding spending (needs vs wants)\n• How much to save\n• Setting financial goals\n• Emergency funds\n• Money-saving tips\n• And more!\n\nWhat would you like to learn about? 😊';
-      } else {
-        response = `💡 That's a great question!\n\nLet me help you understand finances better. Here are some popular topics:\n\n📌 Basic Concepts:\n• "What is a budget?"\n• "How much should I save?"\n• "What is an emergency fund?"\n\n💰 Spending & Money:\n• "How can I save more money?"\n• "What are needs vs wants?"\n• "How much can I spend?"\n\n🎯 Planning:\n• "How do I set financial goals?"\n• "Should I invest?"\n• "How to pay off debt?"\n\nTry asking any of these, or tell me about your specific situation!`;
-      }
-
+      const response = generateResponse(input);
       const assistantMessage: Message = { role: 'assistant', content: response };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       const errorMessage: Message = {
         role: 'assistant',
-        content: 'Sorry, I had trouble processing that. Could you try asking again in a different way?',
+        content: 'Sorry, I encountered an error. Could you try again?',
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -83,7 +105,6 @@ export default function ChatbotPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 pb-24 pt-4 h-[calc(100vh-120px)] flex flex-col">
-        {/* Messages Container */}
         <div className="flex-1 overflow-y-auto space-y-4 mb-4">
           {messages.map((msg, idx) => (
             <div
@@ -115,7 +136,6 @@ export default function ChatbotPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Form */}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input
             type="text"
