@@ -15,11 +15,45 @@ const categoryIcons: Record<string, string> = {
   Default: '💳',
 };
 
+interface BudgetTarget {
+  id: number;
+  category: string;
+  icon: string;
+  group: 'Bills' | 'Needs' | 'Wants';
+  amount: number;
+  frequency: 'Weekly' | 'Monthly' | 'Yearly' | 'Custom';
+  dueDate: string;
+  repeat: boolean;
+}
+
+interface CategoryWithBudget {
+  name: string;
+  icon: string;
+  amount: number;
+  percent: number;
+  budget?: number;
+  remaining?: number;
+  budgetPercent?: number;
+}
+
 export default function SpendingPage() {
   const { transactions, loading } = useApp();
-  const [categorySpending, setCategorySpending] = useState<Array<{ name: string; amount: number; percent: number; icon: string }>>([]);
+  const [categorySpending, setCategorySpending] = useState<CategoryWithBudget[]>([]);
+  const [budgetTargets, setBudgetTargets] = useState<BudgetTarget[]>([]);
 
-  // Calculate spending by category
+  // Load budget targets from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('finora_budget_targets');
+    if (saved) {
+      try {
+        setBudgetTargets(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading budget targets:', e);
+      }
+    }
+  }, []);
+
+  // Calculate spending by category and merge with budget targets
   useEffect(() => {
     if (!transactions || transactions.length === 0) {
       setCategorySpending([]);
@@ -38,16 +72,24 @@ export default function SpendingPage() {
     const total = Object.values(expensesByCategory).reduce((a, b) => a + b, 0);
     
     const spending = Object.entries(expensesByCategory)
-      .map(([name, amount]) => ({
-        name,
-        amount,
-        percent: total > 0 ? (amount / total) * 100 : 0,
-        icon: categoryIcons[name] || categoryIcons.Default,
-      }))
+      .map(([name, amount]) => {
+        // Find matching budget target
+        const target = budgetTargets.find(t => t.category === name);
+        
+        return {
+          name,
+          amount,
+          percent: total > 0 ? (amount / total) * 100 : 0,
+          icon: target?.icon || categoryIcons[name] || categoryIcons.Default,
+          budget: target?.amount,
+          remaining: target ? target.amount - amount : undefined,
+          budgetPercent: target ? (amount / target.amount) * 100 : undefined,
+        };
+      })
       .sort((a, b) => b.amount - a.amount);
 
     setCategorySpending(spending);
-  }, [transactions]);
+  }, [transactions, budgetTargets]);
 
   if (loading) {
     return (
@@ -60,14 +102,19 @@ export default function SpendingPage() {
   const totalSpent = categorySpending.reduce((sum, c) => sum + c.amount, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] pb-32">
+    <div className="w-full">
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
-        <div className="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Finora</h1>
+          <Link href="/settings" className="text-[#7a7d97] hover:text-white transition" title="Settings">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+            </svg>
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pt-6">
+      <div className="max-w-md mx-auto px-4 pt-6">
         {/* Total Spending Summary Card */}
         <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-8">
           <p className="text-xs font-bold text-[#e0e7ff] uppercase tracking-wider mb-2">Total Spending This Month</p>
@@ -104,16 +151,38 @@ export default function SpendingPage() {
                       <span className="text-2xl">{cat.icon}</span>
                       <div>
                         <h3 className="font-bold text-white">{cat.name}</h3>
-                        <p className="text-xs text-[#7a7d97]">{cat.percent.toFixed(1)}% of total</p>
+                        <p className="text-xs text-[#7a7d97]">{cat.percent.toFixed(1)}% of total spending</p>
                       </div>
                     </div>
                     <p className="text-lg font-bold text-[#10b981]">₹{cat.amount.toLocaleString('en-IN')}</p>
                   </div>
                   
-                  {/* Progress Bar */}
+                  {/* Budget Progress (if budget exists) */}
+                  {cat.budget !== undefined && (
+                    <>
+                      <div className="text-xs text-[#a8aac5] mb-2 flex justify-between">
+                        <span>Budget: ₹{cat.budget.toLocaleString('en-IN')}</span>
+                        <span className={cat.remaining! >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]'}>
+                          {cat.remaining! >= 0 ? '✓' : '✗'} ₹{Math.abs(cat.remaining!).toLocaleString('en-IN')} {cat.remaining! >= 0 ? 'left' : 'over'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-[#2d3748] rounded-full h-2 mb-3">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            cat.budgetPercent! <= 80 ? 'bg-gradient-to-r from-[#0066cc] to-[#5500cc]' :
+                            cat.budgetPercent! <= 100 ? 'bg-gradient-to-r from-[#f59e0b] to-[#f97316]' :
+                            'bg-gradient-to-r from-[#ef4444] to-[#dc2626]'
+                          }`}
+                          style={{ width: `${Math.min(cat.budgetPercent!, 100)}%` }}
+                        />
+                      </div>
+                    </>
+                  )}
+                  
+                  {/* Spending as % of Total */}
                   <div className="w-full bg-[#2d3748] rounded-full h-2">
                     <div
-                      className="h-full bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] rounded-full transition-all"
                       style={{ width: `${cat.percent}%` }}
                     />
                   </div>
@@ -123,51 +192,14 @@ export default function SpendingPage() {
               <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 text-center">
                 <p className="text-[#7a7d97]">No expenses yet</p>
                 <p className="text-sm text-[#a8aac5] mt-2">Start tracking your spending to see insights here</p>
+                <Link href="/personalize-plan" className="text-xs text-[#0066cc] hover:text-[#0052a3] mt-3 inline-block">
+                  Set budget targets →
+                </Link>
               </div>
             )}
           </div>
         </div>
-      </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-50">
-        <div className="max-w-md mx-auto px-4 py-3 flex justify-around">
-          <Link href="/" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-            </svg>
-            <span className="text-xs font-semibold">Budget</span>
-          </Link>
-
-          <div className="flex flex-col items-center gap-1 px-4 py-2 text-[#0066cc]">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V7z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-xs font-semibold">Spending</span>
-          </div>
-
-          <Link href="/accounts" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
-            </svg>
-            <span className="text-xs font-semibold">Accounts</span>
-          </Link>
-
-          <Link href="/chat" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-xs font-semibold">Chat</span>
-          </Link>
-
-          <Link href="/reflect" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-xs font-semibold">Reflect</span>
-          </Link>
-        </div>
-      </nav>
+      </div>
     </div>
   );
 }

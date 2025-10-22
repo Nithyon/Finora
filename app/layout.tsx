@@ -7,7 +7,7 @@ import { AppProvider } from "@/lib/context/AppContext";
 export const metadata: Metadata = {
   title: "Finora - AI-Powered Budget Tracking",
   description: "Track your spending with AI insights and smart categorization",
-  // Cache bust v2
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover",
 };
 
 const jakarta = Plus_Jakarta_Sans({
@@ -23,11 +23,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head></head>
-      <body className={`${jakarta.variable} antialiased bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] font-sans`}>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Finora" />
+        <meta name="theme-color" content="#0a0e27" />
+      </head>
+      <body className={`${jakarta.variable} antialiased bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] font-sans overflow-x-hidden`}>
         <AppProvider>
-          <div className="flex min-h-screen flex-col pb-20">
-            <main className="flex-1">{children}</main>
+          <div className="flex flex-col min-h-screen w-screen">
+            <main className="flex-1 w-full overflow-y-auto pb-24">{children}</main>
             <BottomNavbar />
           </div>
         </AppProvider>

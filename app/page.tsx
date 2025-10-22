@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useApp } from '@/lib/context/AppContext';
 
 interface BudgetCategory {
   id: number;
@@ -21,6 +22,7 @@ interface Transaction {
 }
 
 export default function Home() {
+  const { transactions: appTransactions, loading } = useApp();
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
@@ -43,7 +45,6 @@ export default function Home() {
     { id: 8, name: 'Savings', icon: '💰', assigned: 0, spent: 0, target: 10000 },
   ]);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [setupIncome, setSetupIncome] = useState('');
 
   // Check if setup is complete and load personalized targets
@@ -94,7 +95,6 @@ export default function Home() {
           { id: 8, name: 'Savings', icon: '💰', assigned: 0, spent: 0, target: 10000 },
         ]);
       }
-      setTransactions(parsed.transactions || []);
       setIsSetupComplete(true);
     } else {
       setShowSetupModal(true);
@@ -143,7 +143,6 @@ export default function Home() {
       categories: categories.map(cat =>
         cat.id === categoryId ? { ...cat, assigned: cat.assigned + amount } : cat
       ),
-      transactions,
     };
     localStorage.setItem('finora_ynab_setup', JSON.stringify(setupData));
   };
@@ -164,14 +163,21 @@ export default function Home() {
       { id: 7, name: 'Shopping', icon: '🛍️', assigned: 0, spent: 0, target: 3000 },
       { id: 8, name: 'Savings', icon: '💰', assigned: 0, spent: 0, target: 10000 },
     ]);
-    setTransactions([]);
   };
 
   const totalAssigned = categories.reduce((sum, cat) => sum + cat.assigned, 0);
   const totalSpent = categories.reduce((sum, cat) => sum + cat.spent, 0);
+  
+  // Calculate actual spending from transactions
+  const actualSpending = appTransactions?.reduce((sum: number, tx: any) => {
+    if (tx.transaction_type === 'expense') {
+      return sum + tx.amount;
+    }
+    return sum;
+  }, 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a]">
+    <div className="w-full">
       {/* Setup Modal */}
       {showSetupModal && !isSetupComplete && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -222,19 +228,26 @@ export default function Home() {
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Finora</h1>
-          {isSetupComplete && (
-            <button
-              onClick={handleResetSetup}
-              className="text-xs text-[#0066cc] hover:text-[#0052a3] font-semibold"
-            >
-              Reset
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {isSetupComplete && (
+              <button
+                onClick={handleResetSetup}
+                className="text-xs text-[#0066cc] hover:text-[#0052a3] font-semibold"
+              >
+                Reset
+              </button>
+            )}
+            <Link href="/settings" className="text-[#7a7d97] hover:text-white transition" title="Settings">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </header>
 
       {isSetupComplete && (
-        <main className="max-w-md mx-auto px-4 pb-32 pt-6">
+        <main className="max-w-md mx-auto px-4 py-6 pt-6">
           {/* Ready to Assign - YNAB's key feature */}
           <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-8">
             <p className="text-xs uppercase text-[#e0e7ff] font-semibold tracking-wider mb-1">Ready to Assign</p>
@@ -253,10 +266,33 @@ export default function Home() {
               <p className="text-2xl font-bold text-white">₹{totalAssigned.toLocaleString('en-IN')}</p>
             </div>
             <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
-              <p className="text-xs text-[#7a7d97] uppercase tracking-wider mb-1">Spent</p>
-              <p className="text-2xl font-bold text-[#ef4444]">₹{totalSpent.toLocaleString('en-IN')}</p>
+              <p className="text-xs text-[#7a7d97] uppercase tracking-wider mb-1">Actual Spending</p>
+              <p className={`text-2xl font-bold ${actualSpending > totalAssigned ? 'text-[#ef4444]' : 'text-[#10b981]'}`}>
+                ₹{actualSpending.toLocaleString('en-IN')}
+              </p>
             </div>
           </div>
+
+          {/* Spending Overview */}
+          {appTransactions && appTransactions.length > 0 && (
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4 mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-white">Spending Overview</h3>
+                <Link href="/spending" className="text-xs text-[#0066cc] hover:text-[#0052a3]">
+                  View →
+                </Link>
+              </div>
+              <p className="text-sm text-[#a8aac5] mb-3">
+                You've spent <span className="text-white font-bold">₹{actualSpending.toLocaleString('en-IN')}</span> across your categories
+              </p>
+              <Link 
+                href="/spending"
+                className="text-xs bg-[#0066cc] hover:bg-[#0052a3] text-white px-3 py-2 rounded transition inline-block"
+              >
+                📊 View detailed breakdown
+              </Link>
+            </div>
+          )}
 
           {/* Personalize Plan Button */}
           <Link 
@@ -337,7 +373,6 @@ export default function Home() {
                 const setupData = {
                   income: monthlyIncome,
                   categories: categories.map(cat => ({ ...cat, assigned: cat.target })),
-                  transactions,
                 };
                 localStorage.setItem('finora_ynab_setup', JSON.stringify(setupData));
               } else {
@@ -356,48 +391,6 @@ export default function Home() {
             </p>
           </div>
         </main>
-      )}
-
-      {/* Bottom Navigation */}
-      {isSetupComplete && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-50">
-          <div className="max-w-md mx-auto px-4 py-3 flex justify-around">
-            <div className="flex flex-col items-center gap-1 px-4 py-2 text-[#0066cc]">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-              <span className="text-xs font-semibold">Budget</span>
-            </div>
-
-            <Link href="/spending" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V7z" clipRule="evenodd"/>
-              </svg>
-              <span className="text-xs font-semibold">Spending</span>
-            </Link>
-
-            <Link href="/accounts" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
-              </svg>
-              <span className="text-xs font-semibold">Accounts</span>
-            </Link>
-
-            <Link href="/chat" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
-              </svg>
-              <span className="text-xs font-semibold">Chat</span>
-            </Link>
-
-            <Link href="/reflect" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clipRule="evenodd"/>
-              </svg>
-              <span className="text-xs font-semibold">Reflect</span>
-            </Link>
-          </div>
-        </nav>
       )}
 
       {/* Assign Money Modal */}

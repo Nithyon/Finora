@@ -25,7 +25,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a]">
+    <div className="w-full">
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/" className="text-lg">

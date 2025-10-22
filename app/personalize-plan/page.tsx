@@ -91,7 +91,7 @@ export default function PersonalizePlanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a]">
+    <div className="w-full">
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-white hover:text-[#0066cc]">
@@ -100,13 +100,20 @@ export default function PersonalizePlanPage() {
             </svg>
           </Link>
           <h1 className="text-lg font-bold text-white flex-1 text-center">Edit Plan</h1>
-          <Link 
-            href="/" 
-            onClick={() => saveTargets()}
-            className="text-[#0066cc] font-semibold hover:text-[#0052a3]"
-          >
-            Next
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/" 
+              onClick={() => saveTargets()}
+              className="text-[#0066cc] font-semibold hover:text-[#0052a3]"
+            >
+              Next
+            </Link>
+            <Link href="/settings" className="text-[#7a7d97] hover:text-white transition" title="Settings">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </header>
 

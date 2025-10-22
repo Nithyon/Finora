@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useApp } from '@/lib/context/AppContext';
+import { useState, useEffect } from 'react';
 
 const accountIcons: Record<string, string> = {
   Checking: '🏦',
@@ -12,7 +13,24 @@ const accountIcons: Record<string, string> = {
 };
 
 export default function AccountsPage() {
-  const { accounts, loading } = useApp();
+  const { accounts, transactions, loading } = useApp();
+  const [accountSpending, setAccountSpending] = useState<Record<number, number>>({});
+
+  // Calculate spending per account
+  useEffect(() => {
+    if (!transactions || transactions.length === 0) {
+      setAccountSpending({});
+      return;
+    }
+
+    const spending: Record<number, number> = {};
+    transactions.forEach((tx: any) => {
+      if (tx.transaction_type === 'expense' && tx.account_id) {
+        spending[tx.account_id] = (spending[tx.account_id] || 0) + tx.amount;
+      }
+    });
+    setAccountSpending(spending);
+  }, [transactions]);
 
   if (loading) {
     return (
@@ -23,12 +41,18 @@ export default function AccountsPage() {
   }
 
   const totalBalance = accounts.reduce((sum: number, acc: any) => sum + acc.balance, 0);
+  const totalSpending = Object.values(accountSpending).reduce((sum: number, val: number) => sum + val, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0e27] via-[#141829] to-[#1a1f3a] pb-32">
+    <div className="w-full">
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
-        <div className="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-lg font-bold text-white">Finora</h1>
+          <Link href="/settings" className="text-[#7a7d97] hover:text-white transition" title="Settings">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+            </svg>
+          </Link>
         </div>
       </header>
 
@@ -40,13 +64,33 @@ export default function AccountsPage() {
           <p className="text-sm text-[#e0e7ff]">Across all your accounts</p>
         </div>
 
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
+            <p className="text-xs text-[#7a7d97] uppercase mb-2">Accounts</p>
+            <p className="text-2xl font-bold text-white">{accounts.length}</p>
+          </div>
+          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
+            <p className="text-xs text-[#7a7d97] uppercase mb-2">Total Spending</p>
+            <p className="text-2xl font-bold text-[#ef4444]">₹{totalSpending.toLocaleString('en-IN')}</p>
+          </div>
+        </div>
+
         {/* Accounts Grid */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-white mb-4">Your Accounts</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-white">Your Accounts</h2>
+            <Link href="/spending" className="text-xs text-[#0066cc] hover:text-[#0052a3]">
+              View spending →
+            </Link>
+          </div>
           <div className="space-y-4">
             {accounts && accounts.length > 0 ? (
               accounts.map((acc: any) => {
                 const icon = accountIcons[acc.account_type] || accountIcons.Default;
+                const spending = accountSpending[acc.id] || 0;
+                const healthPercent = acc.balance > 0 ? Math.min((spending / acc.balance) * 100, 100) : 0;
+                
                 return (
                   <div
                     key={acc.id}
@@ -63,10 +107,34 @@ export default function AccountsPage() {
                       <span className="px-2 py-1 bg-[#10b981]/20 text-[#10b981] text-xs font-semibold rounded">Connected</span>
                     </div>
                     
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <p className="text-xs text-[#7a7d97] mb-1">Balance</p>
-                        <p className="text-xl font-bold text-white">₹{acc.balance.toLocaleString('en-IN')}</p>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <p className="text-xs text-[#7a7d97] mb-1">Balance</p>
+                          <p className="text-lg font-bold text-white">₹{acc.balance.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-[#7a7d97] mb-1">Spending</p>
+                          <p className="text-lg font-bold text-[#ef4444]">₹{spending.toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Health indicator */}
+                      <div className="pt-2">
+                        <div className="flex justify-between items-center mb-1">
+                          <p className="text-xs text-[#a8aac5]">Account Health</p>
+                          <p className="text-xs font-semibold text-[#0066cc]">{Math.round(100 - healthPercent)}% available</p>
+                        </div>
+                        <div className="w-full bg-[#2d3748] rounded-full h-2">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              healthPercent <= 50 ? 'bg-gradient-to-r from-[#10b981] to-[#059669]' :
+                              healthPercent <= 75 ? 'bg-gradient-to-r from-[#f59e0b] to-[#f97316]' :
+                              'bg-gradient-to-r from-[#ef4444] to-[#dc2626]'
+                            }`}
+                            style={{ width: `${healthPercent}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -74,55 +142,23 @@ export default function AccountsPage() {
               })
             ) : (
               <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 text-center">
-                <p className="text-[#7a7d97]">No accounts connected yet</p>
-                <button className="mt-4 bg-[#0066cc] hover:bg-[#0052a3] text-white text-sm font-semibold py-2 px-4 rounded-lg transition">
+                <p className="text-[#7a7d97] mb-2">No accounts connected yet</p>
+                <p className="text-sm text-[#a8aac5] mb-4">Connect a bank account to start tracking your balance and spending</p>
+                <button className="bg-[#0066cc] hover:bg-[#0052a3] text-white text-sm font-semibold py-2 px-4 rounded-lg transition">
                   + Link New Account
                 </button>
               </div>
             )}
           </div>
         </div>
-      </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-50">
-        <div className="max-w-md mx-auto px-4 py-3 flex justify-around">
-          <Link href="/" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-            </svg>
-            <span className="text-xs font-semibold">Budget</span>
-          </Link>
-
-          <Link href="/spending" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V7z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-xs font-semibold">Spending</span>
-          </Link>
-
-          <div className="flex flex-col items-center gap-1 px-4 py-2 text-[#0066cc]">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
-            </svg>
-            <span className="text-xs font-semibold">Accounts</span>
-          </div>
-
-          <Link href="/chat" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-xs font-semibold">Chat</span>
-          </Link>
-
-          <Link href="/reflect" className="flex flex-col items-center gap-1 px-4 py-2 text-[#7a7d97] hover:text-white transition">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clipRule="evenodd"/>
-            </svg>
-            <span className="text-xs font-semibold">Reflect</span>
-          </Link>
+        {/* Connection Info */}
+        <div className="bg-[#1a2855] border border-[#2d3748] rounded-lg p-4">
+          <p className="text-xs text-[#a8aac5]">
+            💡 Your account balances are connected to your spending tracking. Transactions from these accounts are automatically categorized and counted toward your budget.
+          </p>
         </div>
-      </nav>
+      </main>
     </div>
   );
 }
