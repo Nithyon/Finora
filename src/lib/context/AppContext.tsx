@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { finoraAPI, User, Account, Transaction, Budget, Goal } from '../api/finora-api';
+import { finoraAPI, User, Account, Transaction, Budget, Goal } from '@/lib/api/finora-api';
 
 interface AppState {
   user: User | null;
