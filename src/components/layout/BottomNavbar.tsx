@@ -3,56 +3,39 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+// Bottom navigation bar - 6 main navigation items with Analytics
 export default function BottomNavbar() {
   const pathname = usePathname();
 
+  const isActive = (path: string) => pathname === path;
+
   const navItems = [
-    { href: '/', label: 'Home', icon: '🏠' },
-    { href: '/budget', label: 'Plan', icon: '📊' },
-    { href: '/spending', label: 'Spend', icon: '💳' },
-    { href: '/accounts', label: 'Accounts', icon: '🏦' },
-    { href: '/reflect', label: 'Reflect', icon: '✨' },
+    { href: '/', label: 'Budget', icon: '🏠', short: 'Budget' },
+    { href: '/personalize-plan', label: 'Plan', icon: '🎯', short: 'Plan' },
+    { href: '/spending', label: 'Spending', icon: '💳', short: 'Spend' },
+    { href: '/accounts', label: 'Accounts', icon: '🏦', short: 'Accts' },
+    { href: '/chat', label: 'Chat', icon: '💬', short: 'Chat' },
+    { href: '/analytics', label: 'Analytics', icon: '📊', short: 'Analyze' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27] border-t border-[#2d3748] z-40">
-      <div className="max-w-md mx-auto flex justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-[9999]">
+      <div className="w-full px-0 py-2 flex justify-between items-end">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={
-              pathname === item.href
-                ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc] transition-colors'
-                : 'flex-1 py-3 text-center text-[#7a7d97] hover:text-[#a8aac5] transition-colors'
-            }
+            className={`flex flex-col items-center justify-center gap-0 px-1 py-2 rounded transition-all duration-200 flex-1 ${
+              isActive(item.href)
+                ? 'text-[#0066cc] bg-[#0066cc]/10'
+                : 'text-[#7a7d97] hover:text-white hover:bg-[#1a1f3a]/50'
+            }`}
+            title={item.label}
           >
-            <div className="text-lg">{item.icon}</div>
-            <div className="text-xs font-medium">{item.label}</div>
+            <span className="text-lg leading-none">{item.icon}</span>
+            <span className="text-[6px] font-semibold leading-tight text-center">{item.short || item.label}</span>
           </Link>
         ))}
-        <Link
-          href="/chat"
-          className={
-            pathname === '/chat'
-              ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc] transition-colors'
-              : 'flex-1 py-3 text-center text-[#7a7d97] hover:text-[#a8aac5] transition-colors'
-          }
-        >
-          <div className="text-lg">💬</div>
-          <div className="text-xs font-medium">Chat</div>
-        </Link>
-        <Link
-          href="/settings"
-          className={
-            pathname === '/settings'
-              ? 'flex-1 py-3 text-center text-[#0066cc] border-t-2 border-[#0066cc] transition-colors'
-              : 'flex-1 py-3 text-center text-[#7a7d97] hover:text-[#a8aac5] transition-colors'
-          }
-        >
-          <div className="text-lg">⚙️</div>
-          <div className="text-xs font-medium">Settings</div>
-        </Link>
       </div>
     </nav>
   );
