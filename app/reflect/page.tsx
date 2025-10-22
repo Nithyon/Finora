@@ -32,7 +32,7 @@ export default function ReflectPage() {
                     <span className="text-2xl">{goal.icon}</span>
                     <div>
                       <p className="font-bold text-white">{goal.name}</p>
-                      <p className="text-xs text-[#7a7d97]">${goal.current.toLocaleString()} of ${goal.target.toLocaleString()}</p>
+                      <p className="text-xs text-[#7a7d97]">₹{goal.current.toLocaleString('en-IN')} of ₹{goal.target.toLocaleString('en-IN')}</p>
                     </div>
                   </div>
                   <p className="text-sm font-bold text-[#0066cc]">{Math.round(pct)}%</p>
@@ -40,7 +40,7 @@ export default function ReflectPage() {
                 <div className="w-full bg-[#2d3748] rounded-full h-2">
                   <div className="h-full bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-full" style={{width:`${pct}%`}}></div>
                 </div>
-                <p className="text-xs text-[#a8aac5] mt-2">${(goal.target - goal.current).toLocaleString()} to go</p>
+                <p className="text-xs text-[#a8aac5] mt-2">₹{(goal.target - goal.current).toLocaleString('en-IN')} to go</p>
               </div>
             );
           })}
