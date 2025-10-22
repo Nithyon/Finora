@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useApp } from '@/lib/context/AppContext';
+import { useApp } from '@/lib/context';
 
 const categoryIcons: Record<string, string> = {
   Groceries: '🛒',

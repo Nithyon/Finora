@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import BottomNavbar from "@/components/layout/BottomNavbar";
-import { AppProvider } from "@/lib/context/AppContext";
+import { AppProvider } from "@/lib/context";
 
 export const metadata: Metadata = {
   title: "Finora - AI-Powered Budget Tracking",

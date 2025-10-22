@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useApp } from '@/lib/context/AppContext';
+import { useApp } from '@/lib/context';
 import { useState, useEffect } from 'react';
 
 const accountIcons: Record<string, string> = {

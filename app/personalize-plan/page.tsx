@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useApp } from '@/lib/context/AppContext';
+import { useApp } from '@/lib/context';
 
 interface BudgetTarget {
   id: number;
