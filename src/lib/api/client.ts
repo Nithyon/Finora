@@ -3,7 +3,7 @@
  */
 
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import config from '../config/api';
+import config from './config';
 
 class ApiService {
   private client: AxiosInstance;
