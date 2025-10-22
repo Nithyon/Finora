@@ -21,20 +21,20 @@ export default function BottomNavbar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-[9999]">
-      <div className="w-full px-0 py-1 flex justify-between items-end">
+      <div className="w-full px-0 py-2 flex justify-between items-end">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col items-center justify-center gap-0 px-0 py-1.5 rounded transition-all duration-200 flex-1 ${
+            className={`flex flex-col items-center justify-center gap-0 px-0 py-2 rounded transition-all duration-200 flex-1 ${
               isActive(item.href)
                 ? 'text-[#0066cc] bg-[#0066cc]/10'
                 : 'text-[#7a7d97] hover:text-white hover:bg-[#1a1f3a]/50'
             }`}
             title={item.label}
           >
-            <span className="text-base leading-none">{item.icon}</span>
-            <span className="text-[7px] font-semibold leading-tight text-center">{item.short || item.label}</span>
+            <span className="text-lg leading-none">{item.icon}</span>
+            <span className="text-[6px] font-semibold leading-tight text-center">{item.short || item.label}</span>
           </Link>
         ))}
       </div>
