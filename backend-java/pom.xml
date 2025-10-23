@@ -47,6 +47,13 @@
             <version>3.44.0.0</version>
         </dependency>
 
+        <!-- H2 Database (for Railway deployment) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Dialect for SQLite with JPA -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
