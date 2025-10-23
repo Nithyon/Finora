@@ -11,7 +11,7 @@ import GoalService, { Goal, GoalProgress } from '../utils/goalService';
 import ChartUtils from '../utils/chartUtils';
 
 export default function AnalyticsPage() {
-  const { user } = useApp();
+  const { user, transactions: contextTransactions, refreshTransactions } = useApp();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +46,16 @@ export default function AnalyticsPage() {
     }
 
     try {
-      // Load transactions
-      const allTxns = TransactionService.getTransactions(user.id);
+      // Refresh transactions from context
+      if (refreshTransactions) {
+        refreshTransactions().catch(err => console.error('Failed to refresh transactions:', err));
+      }
+
+      // Load transactions from context or localStorage
+      let allTxns = contextTransactions && contextTransactions.length > 0 
+        ? (contextTransactions as unknown as Transaction[])
+        : TransactionService.getTransactions(user.id);
+      
       setTransactions(allTxns);
 
       // Load budgets
@@ -73,7 +81,7 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, contextTransactions, refreshTransactions]);
 
   // Recalculate charts when data or month changes
   useEffect(() => {
