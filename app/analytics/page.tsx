@@ -9,6 +9,7 @@ import { useApp } from '@/lib/context';
 import TransactionService, { Transaction } from '../utils/transactionService';
 import GoalService, { Goal, GoalProgress } from '../utils/goalService';
 import ChartUtils from '../utils/chartUtils';
+import DemoDataService from '../utils/demoDataService';
 
 export default function AnalyticsPage() {
   const { user, transactions: contextTransactions, refreshTransactions } = useApp();
@@ -56,11 +57,25 @@ export default function AnalyticsPage() {
         ? (contextTransactions as unknown as Transaction[])
         : TransactionService.getTransactions(user.id);
       
+      // If no transactions exist, load demo data automatically
+      if (!allTxns || allTxns.length === 0) {
+        console.log('No transactions found, loading demo data...');
+        DemoDataService.loadDemoDataToLocalStorage(user.id);
+        allTxns = TransactionService.getTransactions(user.id);
+      }
+      
       setTransactions(allTxns);
 
       // Load budgets
-      const budgetsKey = `finora_budget_targets_${user.id}`;
-      const savedBudgets = localStorage.getItem(budgetsKey) || localStorage.getItem('finora_budget_targets');
+      let budgetsKey = `finora_budget_targets_${user.id}`;
+      let savedBudgets = localStorage.getItem(budgetsKey) || localStorage.getItem('finora_budget_targets');
+      
+      // If no budgets, use demo data budgets
+      if (!savedBudgets) {
+        const demoData = DemoDataService.generateCompleteDemoData(user.id);
+        savedBudgets = JSON.stringify(demoData.budgets);
+      }
+      
       if (savedBudgets) {
         const parsed = JSON.parse(savedBudgets);
         const budgetArray = Array.isArray(parsed) ? parsed : [];
@@ -71,7 +86,14 @@ export default function AnalyticsPage() {
       }
 
       // Load goals
-      const savedGoals = GoalService.loadGoals(user.id);
+      let savedGoals = GoalService.loadGoals(user.id);
+      
+      // If no goals, load from demo data
+      if (!savedGoals || savedGoals.length === 0) {
+        const demoData = DemoDataService.generateCompleteDemoData(user.id);
+        savedGoals = (demoData.goals as unknown as Goal[]);
+      }
+      
       setGoals(savedGoals);
 
       setError(null);
