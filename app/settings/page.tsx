@@ -112,6 +112,22 @@ export default function SettingsPage() {
           </button>
         </div>
 
+        {/* Developer Section */}
+        <div className="mb-8">
+          <h2 className="text-white font-bold text-lg mb-4">Developer</h2>
+          <div className="space-y-0 bg-[#141829] border border-[#2d3748] rounded-lg overflow-hidden">
+            <Link 
+              href="/dev-test"
+              className="w-full px-4 py-3 flex items-center gap-3 text-white hover:bg-[#1a1f3a] transition border-b border-[#2d3748]"
+            >
+              <span className="text-lg">🧪</span>
+              <span>Testing & Validation</span>
+              <span className="text-[#7a7d97] text-lg ml-auto">›</span>
+            </Link>
+          </div>
+          <p className="text-[#7a7d97] text-xs mt-2">Load demo data, run validation tests, and check data health</p>
+        </div>
+
         {/* Misc Section */}
         <div className="mb-8">
           <h2 className="text-white font-bold text-lg mb-4">Misc</h2>
