@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/context';
+import TransactionService from './utils/transactionService';
 
 interface BudgetCategory {
   id: number;
@@ -22,11 +23,12 @@ interface Transaction {
 }
 
 export default function Home() {
-  const { transactions: appTransactions, loading } = useApp();
+  const { user, transactions: appTransactions, loading } = useApp();
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
   const [readyToAssign, setReadyToAssign] = useState(0);
+  const [availableToAssign, setAvailableToAssign] = useState(0);
   
   // Modal state for assigning money
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -101,6 +103,22 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Calculate available to assign using TransactionService
+  useEffect(() => {
+    if (isSetupComplete && user?.id) {
+      try {
+        const budgets = categories.map(cat => ({ amount: cat.assigned }));
+        const available = TransactionService.getAvailableToAssign(
+          monthlyIncome,
+          budgets
+        );
+        setAvailableToAssign(available);
+      } catch (e) {
+        console.error('Error calculating available to assign:', e);
+      }
+    }
+  }, [isSetupComplete, user?.id, monthlyIncome, categories]);
 
   const handleSetupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,10 +270,10 @@ export default function Home() {
           <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-8">
             <p className="text-xs uppercase text-[#e0e7ff] font-semibold tracking-wider mb-1">Ready to Assign</p>
             <h3 className="text-4xl font-bold text-white mb-2">
-              ₹{readyToAssign.toLocaleString('en-IN')}
+              ₹{availableToAssign.toLocaleString('en-IN')}
             </h3>
             <p className="text-sm text-[#e0e7ff]">
-              Give every rupee a job! Assign money to your budget categories below.
+              Give every rupee a job! {availableToAssign > 0 ? `You have ₹${availableToAssign.toLocaleString('en-IN')} waiting to be assigned` : 'All income assigned!'}
             </p>
           </div>
 
