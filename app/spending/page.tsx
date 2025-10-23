@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/context';
-import BudgetAlertComponent from '@/components/BudgetAlert';
+import BudgetAlertComponent from '@/app/components/BudgetAlert';
 import BudgetAlertService, { BudgetStatus } from '@/app/utils/budgetAlertService';
 import { BankAccount } from '@/app/utils/virtualBankService';
 import TransactionService from '@/app/utils/transactionService';
@@ -282,7 +282,7 @@ export default function SpendingPage() {
         {visibleAlerts.length > 0 && (
           <div className="mb-8">
             <BudgetAlertComponent 
-              budgetStatuses={visibleAlerts} 
+              alerts={visibleAlerts} 
               onDismiss={handleDismissAlert}
             />
           </div>
