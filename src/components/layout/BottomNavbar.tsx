@@ -7,6 +7,14 @@ import { usePathname } from 'next/navigation';
 export default function BottomNavbar() {
   const pathname = usePathname();
 
+  // Hide navbar on authentication pages
+  const authPages = ['/login', '/signup', '/auth', '/forgot-password'];
+  const shouldHideNavbar = authPages.some(page => pathname === page);
+
+  if (shouldHideNavbar) {
+    return null;
+  }
+
   const isActive = (path: string) => pathname === path;
 
   const navItems = [
