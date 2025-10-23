@@ -13,6 +13,6 @@
     }
   ],
   "env": {
-    "NEXT_PUBLIC_ANALYTICS_API": "@analytics_api_url"
+    "NEXT_PUBLIC_ANALYTICS_API": "https://finora-production-0bb0.up.railway.app"
   }
 }
