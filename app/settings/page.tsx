@@ -157,7 +157,7 @@ export default function SettingsPage() {
 
         {/* Footer */}
         <div className="text-center text-[#7a7d97] text-xs py-4">
-          <p>Finora v1.0.0</p>
+          <p>Finora v1.0.1</p>
         </div>
       </main>
 
