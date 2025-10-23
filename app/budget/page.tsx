@@ -175,7 +175,7 @@ export default function BudgetPage() {
                   <div className="mt-2 text-xs">
                     {metrics.trend === 'overspending' && (
                       <p className="text-[#ef4444]">
-                        ⚠️ At this pace, you'll exceed budget in {metrics.daysUntilBudgetHit} days
+                        ⚠️ At this pace, you&apos;ll exceed budget in {metrics.daysUntilBudgetHit} days
                       </p>
                     )}
                     {metrics.trend === 'warning' && (

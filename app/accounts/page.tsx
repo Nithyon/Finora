@@ -179,7 +179,10 @@ export default function AccountsPage() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-white">💳 Accounts</h1>
+          <div>
+            <h1 className="text-lg font-bold text-white">💳 Accounts</h1>
+            <p className="text-xs text-green-400">✅ LIVE - v2.0.0</p>
+          </div>
           <Link href="/settings" className="text-[#7a7d97] hover:text-white transition">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
@@ -386,7 +389,7 @@ export default function AccountsPage() {
             <div className="text-center">
               <p className="text-2xl mb-3">🏛️</p>
               <h3 className="text-xl font-bold text-white mb-2">Real Bank Integration</h3>
-              <p className="text-slate-400 mb-4">Coming soon! When we get funding, you'll be able to connect:</p>
+              <p className="text-slate-400 mb-4">Coming soon! When we get funding, you&apos;ll be able to connect:</p>
               
               <div className="space-y-2 my-4 text-left">
                 <p className="text-sm text-slate-300">✅ Plaid Integration (Bank accounts)</p>

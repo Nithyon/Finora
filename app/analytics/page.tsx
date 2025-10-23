@@ -120,8 +120,13 @@ export default function AnalyticsPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 pb-24">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white mb-2">📊 Advanced Analytics</h1>
-        <p className="text-purple-200 text-sm">Comprehensive spending analysis & goal tracking</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">📊 Advanced Analytics</h1>
+            <p className="text-green-400 text-xs">✅ LIVE - Charts Working - v2.0.0</p>
+          </div>
+        </div>
+        <p className="text-purple-200 text-sm mt-2">Comprehensive spending analysis & goal tracking</p>
       </div>
 
       {error && (
