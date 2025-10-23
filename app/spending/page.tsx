@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useApp } from '@/lib/context';
 import BudgetAlertComponent from '@/components/BudgetAlert';
 import BudgetAlertService, { BudgetStatus } from '@/app/utils/budgetAlertService';
+import { BankAccount } from '@/app/utils/virtualBankService';
 
 const categoryIcons: Record<string, string> = {
   Groceries: '🛒',
@@ -44,6 +45,8 @@ export default function SpendingPage() {
   const [budgetTargets, setBudgetTargets] = useState<BudgetTarget[]>([]);
   const [budgetAlerts, setBudgetAlerts] = useState<BudgetStatus[]>([]);
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
+  const [virtualAccounts, setVirtualAccounts] = useState<BankAccount[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
 
   // Load budget targets from localStorage
   useEffect(() => {
@@ -56,6 +59,22 @@ export default function SpendingPage() {
       }
     }
   }, []);
+
+  // Load virtual accounts from localStorage
+  useEffect(() => {
+    if (user?.id) {
+      const accountsKey = `finora_bank_accounts_${user.id}`;
+      const savedAccounts = localStorage.getItem(accountsKey);
+      if (savedAccounts) {
+        try {
+          const accounts = JSON.parse(savedAccounts);
+          setVirtualAccounts(accounts);
+        } catch (e) {
+          console.error('Error loading accounts:', e);
+        }
+      }
+    }
+  }, [user?.id]);
 
   // Ensure transactions are loaded from localStorage if not in context
   useEffect(() => {
@@ -100,6 +119,11 @@ export default function SpendingPage() {
     const expensesByCategory: Record<string, number> = {};
     
     txToUse.forEach((tx: any) => {
+      // Filter by account if selected
+      if (selectedAccountId !== 'all' && tx.account_id && tx.account_id !== selectedAccountId) {
+        return;
+      }
+      
       if (tx.transaction_type === 'expense') {
         const category = tx.category || 'Other';
         expensesByCategory[category] = (expensesByCategory[category] || 0) + tx.amount;
@@ -137,7 +161,7 @@ export default function SpendingPage() {
         BudgetAlertService.saveAlertHistory(user.id, BudgetAlertService.getActiveAlerts(alerts));
       }
     }
-  }, [transactions, budgetTargets, user?.id]);
+  }, [transactions, budgetTargets, user?.id, selectedAccountId]);
 
   const handleDismissAlert = (categoryName: string) => {
     setDismissedAlerts(prev => new Set(prev).add(categoryName));
@@ -170,6 +194,25 @@ export default function SpendingPage() {
       </header>
 
       <div className="max-w-md mx-auto px-4 pt-6">
+        {/* Account Filter */}
+        {virtualAccounts.length > 0 && (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-white mb-2">Filter by Account</label>
+            <select
+              value={selectedAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Accounts</option>
+              {virtualAccounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.accountName} ({account.accountType}) - ₹{account.balance.toFixed(2)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Total Spending Summary Card */}
         <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-6">
           <p className="text-xs font-bold text-[#e0e7ff] uppercase tracking-wider mb-2">Total Spending This Month</p>
