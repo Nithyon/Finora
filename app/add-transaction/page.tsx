@@ -36,7 +36,7 @@ const PAYMENT_METHODS = ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', '
 
 export default function AddTransactionPage() {
   const router = useRouter();
-  const { user, addTransaction } = useApp();
+  const { user, addTransaction, refreshTransactions } = useApp();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [virtualAccounts, setVirtualAccounts] = useState<BankAccount[]>([]);
@@ -135,6 +135,16 @@ export default function AddTransactionPage() {
           console.log('Transaction added via context');
         } catch (err) {
           console.log('Context addTransaction failed (OK - using localStorage):', err);
+        }
+      }
+
+      // Refresh transactions to update context and UI
+      if (refreshTransactions) {
+        try {
+          await refreshTransactions();
+          console.log('Transactions refreshed');
+        } catch (err) {
+          console.log('Refresh failed:', err);
         }
       }
 

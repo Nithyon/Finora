@@ -41,7 +41,7 @@ interface CategoryWithBudget {
 }
 
 export default function SpendingPage() {
-  const { transactions, loading, user } = useApp();
+  const { transactions, loading, user, refreshTransactions } = useApp();
   const [categorySpending, setCategorySpending] = useState<CategoryWithBudget[]>([]);
   const [budgetTargets, setBudgetTargets] = useState<BudgetTarget[]>([]);
   const [budgetAlerts, setBudgetAlerts] = useState<BudgetStatus[]>([]);
@@ -49,6 +49,13 @@ export default function SpendingPage() {
   const [virtualAccounts, setVirtualAccounts] = useState<BankAccount[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
   const [spendingVelocity, setSpendingVelocity] = useState<any>(null);
+
+  // Refresh transactions when page loads
+  useEffect(() => {
+    if (refreshTransactions) {
+      refreshTransactions().catch(err => console.error('Failed to refresh transactions:', err));
+    }
+  }, [refreshTransactions]);
 
   // Load budget targets from localStorage
   useEffect(() => {
