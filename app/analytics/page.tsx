@@ -1,293 +1,393 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import analyticsService, {
-  MonthlySummary,
-  SpendingForecast,
-  CategoryBreakdown,
-  BudgetTracking,
-} from '../utils/analyticsClient';
+import Link from 'next/link';
+import {
+  PieChart, Pie, BarChart, Bar, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
 import { useApp } from '@/lib/context';
-
-// Analytics page - displays advanced financial analytics from Java microservice
-
-interface InsightData {
-  message: string;
-  status: string;
-  totalTransactions?: number;
-  highestSpendingDay?: string;
-}
+import TransactionService, { Transaction } from '../utils/transactionService';
+import GoalService, { Goal, GoalProgress } from '../utils/goalService';
+import ChartUtils from '../utils/chartUtils';
 
 export default function AnalyticsPage() {
   const { user } = useApp();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [serviceAvailable, setServiceAvailable] = useState(false);
 
-  // Data states
-  const [monthlySummary, setMonthlySummary] = useState<MonthlySummary | null>(null);
-  const [forecast, setForecast] = useState<SpendingForecast | null>(null);
-  const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdown[]>([]);
-  const [budgetTracking, setBudgetTracking] = useState<BudgetTracking | null>(null);
-  const [insights, setInsights] = useState<InsightData | null>(null);
+  // Transaction data
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number }>(() => {
+    const today = new Date();
+    return { year: today.getFullYear(), month: today.getMonth() + 1 };
+  });
 
+  // Budgets
+  const [budgets, setBudgets] = useState<Array<{ category: string; amount: number }>>([]);
+
+  // Goals
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalProgresses, setGoalProgresses] = useState<GoalProgress[]>([]);
+
+  // Chart data
+  const [spendingByCategory, setSpendingByCategory] = useState<any[]>([]);
+  const [budgetComparison, setBudgetComparison] = useState<any[]>([]);
+  const [spendingTrend, setSpendingTrend] = useState<any[]>([]);
+  const [topCategories, setTopCategories] = useState<any[]>([]);
+  const [incomeVsExpense, setIncomeVsExpense] = useState<any>(null);
+  const [velocity, setVelocity] = useState<any>(null);
+
+  // Load all data
   useEffect(() => {
-    console.log('Analytics page mounted, user:', user);
-    loadAnalyticsData();
-  }, [user?.id]);
-
-  const loadAnalyticsData = async () => {
-    console.log('loadAnalyticsData called, user?.id:', user?.id);
-    
     if (!user?.id) {
-      console.log('No user ID, setting error');
       setError('User not logged in');
       setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
-      setError(null);
+      // Load transactions
+      const allTxns = TransactionService.getTransactions(user.id);
+      setTransactions(allTxns);
 
-      // Check if service is available
-      console.log('Checking analytics service health...');
-      const available = await analyticsService.checkHealth();
-      console.log('Service available:', available);
-      setServiceAvailable(available);
-
-      if (!available) {
-        setError('Analytics service is currently unavailable. Please ensure Java microservice is running on port 8081.');
-        setLoading(false);
-        return;
+      // Load budgets
+      const budgetsKey = `finora_budget_targets_${user.id}`;
+      const savedBudgets = localStorage.getItem(budgetsKey) || localStorage.getItem('finora_budget_targets');
+      if (savedBudgets) {
+        const parsed = JSON.parse(savedBudgets);
+        const budgetArray = Array.isArray(parsed) ? parsed : [];
+        setBudgets(budgetArray.map(b => ({
+          category: b.category || b.name,
+          amount: b.amount
+        })));
       }
 
-      // Load all analytics data in parallel
-      const [summary, forecastData, categories, budget, insightsData] = await Promise.all([
-        analyticsService.getMonthlySummary(user.id),
-        analyticsService.getSpendingForecast(user.id),
-        analyticsService.getCategoryBreakdown(user.id),
-        analyticsService.getBudgetTracking(user.id),
-        analyticsService.getSpendingInsights(user.id),
-      ]);
+      // Load goals
+      const savedGoals = GoalService.loadGoals(user.id);
+      setGoals(savedGoals);
 
-      setMonthlySummary(summary);
-      setForecast(forecastData);
-      setCategoryBreakdown(categories);
-      setBudgetTracking(budget);
-      setInsights(insightsData as InsightData);
+      setError(null);
     } catch (err) {
       console.error('Error loading analytics:', err);
-      setError('Failed to load analytics data. Make sure the Java analytics microservice is running.');
+      setError('Failed to load analytics data');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  // Recalculate charts when data or month changes
+  useEffect(() => {
+    if (!transactions.length) return;
+
+    try {
+      // Get transactions for selected month
+      const monthTxns = TransactionService.getTransactionsByMonth(
+        transactions,
+        selectedMonth.year,
+        selectedMonth.month
+      );
+
+      // Update charts
+      setSpendingByCategory(ChartUtils.getSpendingByCategory(monthTxns));
+      setBudgetComparison(ChartUtils.getBudgetComparison(monthTxns, budgets));
+      setSpendingTrend(ChartUtils.getSpendingTrend(transactions, 30));
+      setTopCategories(ChartUtils.getTopSpendingCategories(monthTxns, 5));
+      setIncomeVsExpense(ChartUtils.getIncomeVsExpense(monthTxns));
+      setVelocity(ChartUtils.getSpendingVelocityGauge(monthTxns, budgets.reduce((sum, b) => sum + b.amount, 0)));
+
+      // Update goal progress
+      if (goals.length > 0) {
+        const progresses = GoalService.getAllGoalsProgress(goals, transactions);
+        setGoalProgresses(progresses);
+      }
+    } catch (err) {
+      console.error('Error calculating analytics:', err);
+    }
+  }, [transactions, budgets, goals, selectedMonth]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 pb-24 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4 mx-auto"></div>
+          <p className="text-purple-200">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 pb-24">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-white mb-2">📊 Advanced Analytics</h1>
-        <p className="text-purple-200 text-sm">
-          {serviceAvailable
-            ? 'Powered by Java Microservice'
-            : 'Analytics service unavailable - Java microservice not running'}
-        </p>
+        <p className="text-purple-200 text-sm">Comprehensive spending analysis & goal tracking</p>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
-          <p className="text-purple-200">Loading analytics...</p>
-        </div>
-      )}
-
-      {/* Error State */}
       {error && (
         <div className="bg-red-500/20 border border-red-500 rounded-lg p-4 mb-6">
-          <p className="text-red-200 font-semibold">⚠️ {error}</p>
-          <button
-            onClick={loadAnalyticsData}
-            className="mt-3 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm"
-          >
-            Retry
-          </button>
+          <p className="text-red-200">{error}</p>
         </div>
       )}
 
-      {/* Main Content */}
-      {!loading && serviceAvailable && (
-        <div className="space-y-6">
-          {/* Monthly Summary Cards */}
-          {monthlySummary && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Total Income */}
-              <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-lg p-4">
-                <p className="text-green-200 text-sm font-semibold mb-2">💰 Total Income</p>
-                <p className="text-3xl font-bold text-green-400">₹{monthlySummary.totalIncome.toLocaleString()}</p>
-                <p className="text-green-200/60 text-xs mt-2">{monthlySummary.month}/{monthlySummary.year}</p>
-              </div>
+      {/* Month Selector */}
+      <div className="mb-6 flex gap-2">
+        <select
+          value={selectedMonth.month}
+          onChange={(e) => setSelectedMonth(prev => ({ ...prev, month: parseInt(e.target.value) }))}
+          className="bg-slate-800 border border-slate-700 text-white rounded px-3 py-2"
+        >
+          {Array.from({ length: 12 }, (_, i) => (
+            <option key={i} value={i + 1}>
+              {new Date(2000, i).toLocaleString('en-IN', { month: 'long' })}
+            </option>
+          ))}
+        </select>
+        <select
+          value={selectedMonth.year}
+          onChange={(e) => setSelectedMonth(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+          className="bg-slate-800 border border-slate-700 text-white rounded px-3 py-2"
+        >
+          {Array.from({ length: 5 }, (_, i) => {
+            const year = new Date().getFullYear() - i;
+            return <option key={year} value={year}>{year}</option>;
+          })}
+        </select>
+      </div>
 
-              {/* Total Expense */}
-              <div className="bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 rounded-lg p-4">
-                <p className="text-red-200 text-sm font-semibold mb-2">💸 Total Expense</p>
-                <p className="text-3xl font-bold text-red-400">₹{monthlySummary.totalExpense.toLocaleString()}</p>
-                <p className="text-red-200/60 text-xs mt-2">
-                  {monthlySummary.transactionCount} transactions
-                </p>
-              </div>
+      {/* Income vs Expense Summary */}
+      {incomeVsExpense && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-lg p-4">
+            <p className="text-green-200 text-sm font-semibold mb-2">💰 Income</p>
+            <p className="text-2xl font-bold text-green-400">{ChartUtils.formatCurrency(incomeVsExpense.income)}</p>
+          </div>
 
-              {/* Net Income */}
-              <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 rounded-lg p-4">
-                <p className="text-purple-200 text-sm font-semibold mb-2">📈 Net Income</p>
-                <p className={`text-3xl font-bold ${monthlySummary.netIncome >= 0 ? 'text-purple-400' : 'text-orange-400'}`}>
-                  ₹{monthlySummary.netIncome.toLocaleString()}
-                </p>
-                <p className="text-purple-200/60 text-xs mt-2">
-                  {((monthlySummary.netIncome / monthlySummary.totalIncome) * 100).toFixed(1)}% savings rate
-                </p>
+          <div className="bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/20 rounded-lg p-4">
+            <p className="text-red-200 text-sm font-semibold mb-2">💸 Expense</p>
+            <p className="text-2xl font-bold text-red-400">{ChartUtils.formatCurrency(incomeVsExpense.expense)}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 rounded-lg p-4">
+            <p className="text-purple-200 text-sm font-semibold mb-2">📈 Savings</p>
+            <p className="text-2xl font-bold text-purple-400">{ChartUtils.formatCurrency(incomeVsExpense.savings)}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-lg p-4">
+            <p className="text-blue-200 text-sm font-semibold mb-2">📊 Rate</p>
+            <p className="text-2xl font-bold text-blue-400">{ChartUtils.formatPercentage(incomeVsExpense.savingsRate)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Spending Velocity Gauge */}
+      {velocity && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-4">⚡ Spending Velocity</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-200">Monthly Projection</span>
+                <span className="text-white font-semibold">
+                  {ChartUtils.formatCurrency(velocity.current)} / {ChartUtils.formatCurrency(velocity.max)}
+                </span>
               </div>
+              <div className="w-full bg-slate-700 rounded-full h-3">
+                <div
+                  className={`h-3 rounded-full transition-all ${
+                    velocity.status === 'healthy'
+                      ? 'bg-green-500'
+                      : velocity.status === 'warning'
+                      ? 'bg-yellow-500'
+                      : 'bg-red-500'
+                  }`}
+                  style={{ width: `${Math.min(velocity.percentage, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-gray-400 text-xs mt-2">
+                {velocity.status === 'healthy' ? '✅ On track' : velocity.status === 'warning' ? '⚠️ Watch spending' : '🚨 Over budget'}
+              </p>
             </div>
-          )}
+          </div>
+        </div>
+      )}
 
-          {/* Budget Tracking */}
-          {budgetTracking && (
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">💳 Budget Tracking</h2>
-              
-              <div className="space-y-4">
-                {/* Budget Bar */}
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-gray-200">Monthly Budget</span>
-                    <span className="text-white font-semibold">
-                      ₹{budgetTracking.currentSpending.toLocaleString()} / ₹{budgetTracking.budgetLimit.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-700 rounded-full h-3">
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Pie Chart - Spending by Category */}
+        {spendingByCategory.length > 0 && (
+          <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
+            <h2 className="text-lg font-bold text-white mb-4">📂 Spending by Category</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={spendingByCategory}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percentage }) => `${name}: ${percentage}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {spendingByCategory.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => ChartUtils.formatCurrency(value as number)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Top Spending Categories */}
+        {topCategories.length > 0 && (
+          <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
+            <h2 className="text-lg font-bold text-white mb-4">🏆 Top Spending Categories</h2>
+            <div className="space-y-3">
+              {topCategories.map((cat, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-1">
                     <div
-                      className={`h-3 rounded-full transition-all ${
-                        budgetTracking.status === 'healthy'
-                          ? 'bg-green-500'
-                          : budgetTracking.status === 'warning'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
-                      }`}
-                      style={{ width: `${Math.min(budgetTracking.percentageUsed, 100)}%` }}
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: cat.color }}
                     ></div>
+                    <span className="text-white">{cat.category}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-semibold">{ChartUtils.formatCurrency(cat.amount)}</p>
+                    <p className="text-gray-400 text-xs">{cat.percentage.toFixed(1)}%</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
-                {/* Status Badge */}
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Remaining</span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      budgetTracking.status === 'healthy'
-                        ? 'bg-green-500/20 text-green-300'
-                        : budgetTracking.status === 'warning'
-                        ? 'bg-yellow-500/20 text-yellow-300'
-                        : 'bg-red-500/20 text-red-300'
-                    }`}
-                  >
-                    ₹{budgetTracking.remaining.toLocaleString()} ({budgetTracking.status})
+      {/* Budget Comparison */}
+      {budgetComparison.length > 0 && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6 mb-6">
+          <h2 className="text-lg font-bold text-white mb-4">💳 Budget vs Actual</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={budgetComparison}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+              <XAxis dataKey="category" stroke="#a8aac5" />
+              <YAxis stroke="#a8aac5" />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+                formatter={(value) => ChartUtils.formatCurrency(value as number)}
+              />
+              <Legend />
+              <Bar dataKey="budget" stackId="a" fill="#0066cc" />
+              <Bar dataKey="spent" stackId="a" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Spending Trend */}
+      {spendingTrend.length > 0 && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6 mb-6">
+          <h2 className="text-lg font-bold text-white mb-4">📈 Spending Trend (Last 30 Days)</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={spendingTrend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+              <XAxis dataKey="date" stroke="#a8aac5" />
+              <YAxis stroke="#a8aac5" />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569' }}
+                formatter={(value) => ChartUtils.formatCurrency(value as number)}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="cumulative" stroke="#0066cc" name="Cumulative Spending" />
+              <Line type="monotone" dataKey="spending" stroke="#ef4444" name="Daily Spending" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Goals Dashboard */}
+      {goalProgresses.length > 0 && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6 mb-6">
+          <h2 className="text-lg font-bold text-white mb-4">🎯 Goal Progress</h2>
+          
+          <div className="space-y-4">
+            {goalProgresses.map((gp, idx) => (
+              <div key={idx} className="bg-slate-700/30 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="text-white font-semibold">{gp.goal.name}</h3>
+                    <p className="text-gray-400 text-sm">
+                      {ChartUtils.formatCurrency(gp.goal.currentAmount)} / {ChartUtils.formatCurrency(gp.goal.targetAmount)}
+                    </p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    gp.status === 'healthy' ? 'bg-green-500/20 text-green-300' :
+                    gp.status === 'warning' ? 'bg-yellow-500/20 text-yellow-300' :
+                    gp.status === 'critical' ? 'bg-red-500/20 text-red-300' :
+                    'bg-blue-500/20 text-blue-300'
+                  }`}>
+                    {gp.status}
                   </span>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* Category Breakdown */}
-          {categoryBreakdown.length > 0 && (
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">📂 Spending by Category</h2>
-              
-              <div className="space-y-3">
-                {categoryBreakdown.map((category, index) => (
-                  <div key={index} className="bg-slate-700/30 rounded p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="text-white font-semibold">{category.category}</p>
-                        <p className="text-gray-400 text-xs">{category.transactionCount} transactions</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-white font-semibold">₹{category.totalAmount.toLocaleString()}</p>
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${
-                            category.trend === 'increasing'
-                              ? 'bg-red-500/20 text-red-300'
-                              : category.trend === 'decreasing'
-                              ? 'bg-green-500/20 text-green-300'
-                              : 'bg-gray-500/20 text-gray-300'
-                          }`}
-                        >
-                          {category.trend === 'increasing' ? '📈' : category.trend === 'decreasing' ? '📉' : '➡️'}{' '}
-                          {category.trend}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full bg-slate-600 rounded-full h-2">
-                      <div
-                        className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"
-                        style={{ width: `${Math.min(category.percentage, 100)}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-gray-400 text-xs mt-1">{category.percentage.toFixed(1)}% of total</p>
+                {/* Progress Bar */}
+                <div className="mb-3">
+                  <div className="w-full bg-slate-600 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all ${
+                        gp.status === 'healthy' ? 'bg-green-500' :
+                        gp.status === 'warning' ? 'bg-yellow-500' :
+                        gp.status === 'critical' ? 'bg-red-500' :
+                        'bg-blue-500'
+                      }`}
+                      style={{ width: `${Math.min(gp.progressPercent, 100)}%` }}
+                    ></div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Spending Forecast */}
-          {forecast && (
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">🔮 Spending Forecast</h2>
-              
-              <div className="space-y-4">
-                <div className="bg-slate-700/30 rounded p-4">
-                  <p className="text-gray-300 text-sm mb-2">Average Monthly Spending</p>
-                  <p className="text-3xl font-bold text-purple-400">₹{forecast.averageMonthlyExpense.toLocaleString()}</p>
+                  <p className="text-gray-400 text-xs mt-1">{gp.progressPercent.toFixed(1)}% complete</p>
                 </div>
 
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded p-4">
-                  <p className="text-blue-200 text-sm">💡 Recommendation</p>
-                  <p className="text-white mt-2">{forecast.recommendation}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Insights */}
-          {insights && (
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">💭 Smart Insights</h2>
-              
-              <div className="space-y-3">
-                <div className="bg-slate-700/30 rounded p-4">
-                  <p className="text-white">{insights.message}</p>
-                  {insights.totalTransactions && (
-                    <p className="text-gray-400 text-sm mt-2">
-                      Total Transactions Analyzed: {insights.totalTransactions}
+                {/* Goal Stats */}
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <p className="text-gray-400">Days Left</p>
+                    <p className="text-white font-semibold">{gp.daysRemaining}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Needed/Day</p>
+                    <p className="text-white font-semibold">{ChartUtils.formatCurrency(gp.averageNeededPerDay)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">On Track</p>
+                    <p className={gp.onTrack ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
+                      {gp.onTrack ? '✓' : '✗'}
                     </p>
-                  )}
+                  </div>
+                </div>
+
+                {/* Recommendation */}
+                <div className="mt-3 p-2 bg-blue-500/10 border border-blue-500/20 rounded text-xs text-blue-200">
+                  {gp.recommendation}
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* Refresh Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={loadAnalyticsData}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition"
-            >
-              🔄 Refresh Analytics
-            </button>
+            ))}
           </div>
+
+          <Link href="/reflect" className="inline-block mt-4 text-blue-400 hover:text-blue-300 text-sm">
+            Manage Goals →
+          </Link>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {transactions.length === 0 && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-12 text-center">
+          <p className="text-gray-400 mb-4">No transactions yet</p>
+          <Link href="/add-transaction" className="text-blue-400 hover:text-blue-300">
+            Add your first transaction →
+          </Link>
         </div>
       )}
     </div>
