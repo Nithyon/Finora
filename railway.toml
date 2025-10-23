@@ -1,5 +1,7 @@
 [build]
 dockerfile = "backend-java/Dockerfile"
+buildContext = "backend-java"
 
 [deploy]
 port = 8081
+startCommand = ""
