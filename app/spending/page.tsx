@@ -6,6 +6,7 @@ import { useApp } from '@/lib/context';
 import BudgetAlertComponent from '@/components/BudgetAlert';
 import BudgetAlertService, { BudgetStatus } from '@/app/utils/budgetAlertService';
 import { BankAccount } from '@/app/utils/virtualBankService';
+import TransactionService from '@/app/utils/transactionService';
 
 const categoryIcons: Record<string, string> = {
   Groceries: '🛒',
@@ -47,6 +48,7 @@ export default function SpendingPage() {
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
   const [virtualAccounts, setVirtualAccounts] = useState<BankAccount[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
+  const [spendingVelocity, setSpendingVelocity] = useState<any>(null);
 
   // Load budget targets from localStorage
   useEffect(() => {
@@ -161,6 +163,13 @@ export default function SpendingPage() {
         BudgetAlertService.saveAlertHistory(user.id, BudgetAlertService.getActiveAlerts(alerts));
       }
     }
+
+    // Calculate spending velocity
+    if (user?.id) {
+      const allTransactions = TransactionService.getTransactions(user.id);
+      const velocity = TransactionService.getSpendingVelocity(allTransactions, budgetTargets);
+      setSpendingVelocity(velocity);
+    }
   }, [transactions, budgetTargets, user?.id, selectedAccountId]);
 
   const handleDismissAlert = (categoryName: string) => {
@@ -219,6 +228,48 @@ export default function SpendingPage() {
           <p className="text-4xl font-bold text-white mb-2">₹{totalSpent.toLocaleString('en-IN')}</p>
           <p className="text-sm text-[#e0e7ff]">Track your spending across all categories</p>
         </div>
+
+        {/* Spending Velocity Alert */}
+        {spendingVelocity && (
+          <div className={`rounded-xl p-6 mb-6 border-2 ${
+            spendingVelocity.status === 'healthy' ? 'bg-green-500/10 border-green-500/30' :
+            spendingVelocity.status === 'warning' ? 'bg-yellow-500/10 border-yellow-500/30' :
+            'bg-red-500/10 border-red-500/30'
+          }`}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${
+                  spendingVelocity.status === 'healthy' ? 'text-green-300' :
+                  spendingVelocity.status === 'warning' ? 'text-yellow-300' :
+                  'text-red-300'
+                }`}>
+                  {spendingVelocity.status === 'healthy' ? '✓ Healthy Pace' :
+                   spendingVelocity.status === 'warning' ? '⚠️ Warning' :
+                   '🚨 Critical'}
+                </p>
+                <p className="text-2xl font-bold text-white">₹{spendingVelocity.dailyAverage.toFixed(0)}/day</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-white/60">Days until exhausted</p>
+                <p className={`text-2xl font-bold ${
+                  spendingVelocity.status === 'healthy' ? 'text-green-300' :
+                  spendingVelocity.status === 'warning' ? 'text-yellow-300' :
+                  'text-red-300'
+                }`}>
+                  {spendingVelocity.daysUntilExhausted > 0 ? Math.floor(spendingVelocity.daysUntilExhausted) : '0'} days
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-white/80">
+              {spendingVelocity.status === 'healthy' 
+                ? `At your current pace of ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week, your budget will last through the month.`
+                : spendingVelocity.status === 'warning'
+                ? `You're spending ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week. Slow down to avoid running out!`
+                : `Critical: Spending ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week will exhaust your budget in ${Math.floor(spendingVelocity.daysUntilExhausted)} days!`
+              }
+            </p>
+          </div>
+        )}
 
         {/* Add Transaction Button */}
         <Link href="/add-transaction" className="block mb-8">
