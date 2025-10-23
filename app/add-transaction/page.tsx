@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
+import { BankAccount } from '@/app/utils/virtualBankService';
 
 interface Transaction {
   id: number;
@@ -12,6 +13,7 @@ interface Transaction {
   amount: number;
   type: 'expense' | 'income';
   paymentMethod: string;
+  accountId?: string;
 }
 
 const CATEGORIES = [
@@ -37,6 +39,7 @@ export default function AddTransactionPage() {
   const { user, addTransaction } = useApp();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [virtualAccounts, setVirtualAccounts] = useState<BankAccount[]>([]);
 
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -45,7 +48,28 @@ export default function AddTransactionPage() {
     amount: '',
     type: 'expense' as 'expense' | 'income',
     paymentMethod: 'Credit Card',
+    accountId: '',
   });
+
+  // Load virtual accounts from localStorage
+  useEffect(() => {
+    if (user?.id) {
+      const accountsKey = `finora_bank_accounts_${user.id}`;
+      const savedAccounts = localStorage.getItem(accountsKey);
+      if (savedAccounts) {
+        try {
+          const accounts = JSON.parse(savedAccounts);
+          setVirtualAccounts(accounts);
+          // Set default account to first one if available
+          if (accounts.length > 0 && !formData.accountId) {
+            setFormData(prev => ({ ...prev, accountId: accounts[0].id }));
+          }
+        } catch (e) {
+          console.error('Error loading accounts:', e);
+        }
+      }
+    }
+  }, [user?.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -79,7 +103,7 @@ export default function AddTransactionPage() {
       const transaction = {
         id: Date.now(),
         user_id: user.id,
-        account_id: 1, // Default account
+        account_id: formData.accountId || 1, // Use selected account or default
         amount: parseFloat(formData.amount),
         transaction_type: formData.type,
         category: categoryName,
@@ -164,6 +188,28 @@ export default function AddTransactionPage() {
             </label>
           </div>
         </div>
+
+        {/* Account Selection */}
+        {virtualAccounts.length > 0 && (
+          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <label htmlFor="account" className="block text-sm font-medium text-white mb-2">
+              Virtual Account
+            </label>
+            <select
+              id="account"
+              value={formData.accountId}
+              onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+              className="w-full px-4 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-purple-500"
+            >
+              <option value="">Select an account...</option>
+              {virtualAccounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.accountName} ({account.accountType}) - ₹{account.balance.toFixed(2)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Date */}
         <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
