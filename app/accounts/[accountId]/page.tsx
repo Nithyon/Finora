@@ -326,23 +326,53 @@ export default function AccountDetailsPage() {
           <h3 className="text-white font-semibold mb-3">Quick Actions</h3>
 
           <div className="grid grid-cols-2 gap-2">
-            <Link
-              href="/accounts"
+            <button
+              onClick={() => {
+                const amount = prompt('Enter deposit amount:');
+                if (!amount || !account) return;
+                try {
+                  const { account: updatedAccount, transaction } = VirtualBankService.deposit(
+                    account,
+                    parseFloat(amount),
+                    'Manual Deposit'
+                  );
+                  setAccount(updatedAccount);
+                  setTransactions([...transactions, transaction]);
+                  alert(`✅ Deposit successful! New balance: ₹${updatedAccount.balance}`);
+                } catch (error) {
+                  alert(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center transition"
             >
               💰 Deposit
-            </Link>
-            <Link
-              href="/accounts"
+            </button>
+            <button
+              onClick={() => {
+                const amount = prompt('Enter withdrawal amount:');
+                if (!amount || !account) return;
+                try {
+                  const { account: updatedAccount, transaction } = VirtualBankService.withdraw(
+                    account,
+                    parseFloat(amount),
+                    'Manual Withdrawal'
+                  );
+                  setAccount(updatedAccount);
+                  setTransactions([...transactions, transaction]);
+                  alert(`✅ Withdrawal successful! New balance: ₹${updatedAccount.balance}`);
+                } catch (error) {
+                  alert(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center transition"
             >
               💸 Withdraw
-            </Link>
+            </button>
             <Link
-              href="/accounts"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded text-center transition col-span-2"
+              href="/accounts/transfer"
+              className="col-span-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded text-center transition"
             >
-              🔄 Transfer (Coming Soon)
+              🔄 Transfer Money
             </Link>
           </div>
         </div>

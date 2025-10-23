@@ -342,7 +342,7 @@ export default function AccountsPage() {
                       </div>
 
                       {/* Actions */}
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2 mb-3">
                         <button
                           onClick={() => handleDeposit(account.id)}
                           className="bg-white/20 hover:bg-white/30 text-white font-semibold py-2 rounded transition text-sm"
@@ -357,13 +357,21 @@ export default function AccountsPage() {
                         </button>
                       </div>
 
-                      {/* View Details Link */}
-                      <Link
-                        href={`/accounts/${account.id}`}
-                        className="block mt-3 text-center bg-white/10 hover:bg-white/20 text-white font-semibold py-2 rounded transition text-sm"
-                      >
-                        📊 View Details
-                      </Link>
+                      {/* View Details & Transfer Links */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href={`/accounts/${account.id}`}
+                          className="text-center bg-white/10 hover:bg-white/20 text-white font-semibold py-2 rounded transition text-sm"
+                        >
+                          📊 Details
+                        </Link>
+                        <Link
+                          href="/accounts/transfer"
+                          className="text-center bg-purple-500/30 hover:bg-purple-500/40 text-white font-semibold py-2 rounded transition text-sm"
+                        >
+                          🔄 Transfer
+                        </Link>
+                      </div>
                     </div>
                   );
                 })
