@@ -197,10 +197,13 @@ export default function SpendingPage() {
   const totalSpent = categorySpending.reduce((sum, c) => sum + c.amount, 0);
 
   return (
-    <div className="w-full">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pb-24">
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-white">Finora</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-white">💳 Spending</h1>
+            <p className="text-xs text-green-400">✅ LIVE - Track Expenses</p>
+          </div>
           <Link href="/settings" className="text-[#7a7d97] hover:text-white transition" title="Settings">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
@@ -213,11 +216,11 @@ export default function SpendingPage() {
         {/* Account Filter */}
         {virtualAccounts.length > 0 && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-white mb-2">Filter by Account</label>
+            <label className="block text-sm font-semibold text-purple-200 mb-2">📍 Filter by Account</label>
             <select
               value={selectedAccountId}
               onChange={(e) => setSelectedAccountId(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-medium focus:outline-none focus:border-purple-500 transition hover:border-purple-500"
             >
               <option value="all">All Accounts</option>
               {virtualAccounts.map((account) => (
@@ -230,49 +233,49 @@ export default function SpendingPage() {
         )}
 
         {/* Total Spending Summary Card */}
-        <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-6">
-          <p className="text-xs font-bold text-[#e0e7ff] uppercase tracking-wider mb-2">Total Spending This Month</p>
-          <p className="text-4xl font-bold text-white mb-2">₹{totalSpent.toLocaleString('en-IN')}</p>
-          <p className="text-sm text-[#e0e7ff]">Track your spending across all categories</p>
+        <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 mb-6 shadow-xl">
+          <p className="text-xs font-bold text-blue-100 uppercase tracking-widest mb-2">📊 Total Spending This Month</p>
+          <p className="text-5xl font-bold text-white mb-2">₹{totalSpent.toLocaleString('en-IN')}</p>
+          <p className="text-sm text-blue-50 font-medium">Track spending across all categories</p>
         </div>
 
         {/* Spending Velocity Alert */}
         {spendingVelocity && (
-          <div className={`rounded-xl p-6 mb-6 border-2 ${
-            spendingVelocity.status === 'healthy' ? 'bg-green-500/10 border-green-500/30' :
-            spendingVelocity.status === 'warning' ? 'bg-yellow-500/10 border-yellow-500/30' :
-            'bg-red-500/10 border-red-500/30'
+          <div className={`rounded-2xl p-6 mb-6 border-2 backdrop-blur shadow-lg ${
+            spendingVelocity.status === 'healthy' ? 'bg-emerald-500/15 border-emerald-500/40' :
+            spendingVelocity.status === 'warning' ? 'bg-amber-500/15 border-amber-500/40' :
+            'bg-rose-500/15 border-rose-500/40'
           }`}>
             <div className="flex items-start justify-between mb-3">
               <div>
-                <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${
-                  spendingVelocity.status === 'healthy' ? 'text-green-300' :
-                  spendingVelocity.status === 'warning' ? 'text-yellow-300' :
-                  'text-red-300'
+                <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${
+                  spendingVelocity.status === 'healthy' ? 'text-emerald-300' :
+                  spendingVelocity.status === 'warning' ? 'text-amber-300' :
+                  'text-rose-300'
                 }`}>
-                  {spendingVelocity.status === 'healthy' ? '✓ Healthy Pace' :
+                  {spendingVelocity.status === 'healthy' ? '✅ Healthy Pace' :
                    spendingVelocity.status === 'warning' ? '⚠️ Warning' :
                    '🚨 Critical'}
                 </p>
-                <p className="text-2xl font-bold text-white">₹{spendingVelocity.dailyAverage.toFixed(0)}/day</p>
+                <p className="text-3xl font-bold text-white">₹{spendingVelocity.dailyAverage.toFixed(0)}/day</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-white/60">Days until exhausted</p>
-                <p className={`text-2xl font-bold ${
-                  spendingVelocity.status === 'healthy' ? 'text-green-300' :
-                  spendingVelocity.status === 'warning' ? 'text-yellow-300' :
-                  'text-red-300'
+                <p className="text-xs text-white/70 font-medium">Days left</p>
+                <p className={`text-3xl font-bold ${
+                  spendingVelocity.status === 'healthy' ? 'text-emerald-300' :
+                  spendingVelocity.status === 'warning' ? 'text-amber-300' :
+                  'text-rose-300'
                 }`}>
-                  {spendingVelocity.daysUntilExhausted > 0 ? Math.floor(spendingVelocity.daysUntilExhausted) : '0'} days
+                  {spendingVelocity.daysUntilExhausted > 0 ? Math.floor(spendingVelocity.daysUntilExhausted) : '0'}
                 </p>
               </div>
             </div>
-            <p className="text-sm text-white/80">
+            <p className="text-sm text-white/90 font-medium">
               {spendingVelocity.status === 'healthy' 
-                ? `At your current pace of ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week, your budget will last through the month.`
+                ? `✓ At ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week, budget lasts the month`
                 : spendingVelocity.status === 'warning'
-                ? `You're spending ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week. Slow down to avoid running out!`
-                : `Critical: Spending ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week will exhaust your budget in ${Math.floor(spendingVelocity.daysUntilExhausted)} days!`
+                ? `⚠️ Spending ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week - slow down!`
+                : `🔴 Critical: ₹${spendingVelocity.weeklyTotal.toFixed(0)}/week will exhaust budget in ${Math.floor(spendingVelocity.daysUntilExhausted)} days!`
               }
             </p>
           </div>
@@ -280,8 +283,8 @@ export default function SpendingPage() {
 
         {/* Add Transaction Button */}
         <Link href="/add-transaction" className="block mb-8">
-          <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-lg transition shadow-lg">
-            💰 Add New Transaction
+          <button className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg hover:shadow-xl text-lg">
+            ➕ Add New Transaction
           </button>
         </Link>
 
@@ -297,13 +300,13 @@ export default function SpendingPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
-            <p className="text-xs text-[#7a7d97] mb-1">Categories</p>
-            <p className="text-2xl font-bold text-white">{categorySpending.length}</p>
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-4 hover:border-purple-500 transition shadow-lg">
+            <p className="text-xs font-bold text-purple-300 uppercase tracking-wide mb-2">📂 Categories</p>
+            <p className="text-3xl font-bold text-white">{categorySpending.length}</p>
           </div>
-          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4">
-            <p className="text-xs text-[#7a7d97] mb-1">Avg/Category</p>
-            <p className="text-2xl font-bold text-[#10b981]">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-4 hover:border-emerald-500 transition shadow-lg">
+            <p className="text-xs font-bold text-emerald-300 uppercase tracking-wide mb-2">📈 Avg/Category</p>
+            <p className="text-3xl font-bold text-emerald-400">
               ₹{categorySpending.length > 0 ? Math.round(totalSpent / categorySpending.length).toLocaleString('en-IN') : '0'}
             </p>
           </div>
@@ -311,40 +314,40 @@ export default function SpendingPage() {
 
         {/* Spending by Category */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-white mb-4">Spending by Category</h2>
-          <div className="space-y-3">
+          <h2 className="text-2xl font-bold text-white mb-4">📊 Spending by Category</h2>
+          <div className="space-y-4">
             {categorySpending.length > 0 ? (
               categorySpending.map((cat) => (
                 <div
                   key={cat.name}
-                  className="bg-[#141829] border border-[#2d3748] rounded-lg p-4 hover:border-[#0066cc] transition"
+                  className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-slate-700 rounded-xl p-5 hover:border-purple-500 hover:shadow-lg transition backdrop-blur"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{cat.icon}</span>
+                      <span className="text-3xl">{cat.icon}</span>
                       <div>
-                        <h3 className="font-bold text-white">{cat.name}</h3>
-                        <p className="text-xs text-[#7a7d97]">{cat.percent.toFixed(1)}% of total spending</p>
+                        <h3 className="font-bold text-white text-lg">{cat.name}</h3>
+                        <p className="text-xs text-slate-400 font-medium">{cat.percent.toFixed(1)}% of spending</p>
                       </div>
                     </div>
-                    <p className="text-lg font-bold text-[#10b981]">₹{cat.amount.toLocaleString('en-IN')}</p>
+                    <p className="text-xl font-bold text-emerald-400">₹{cat.amount.toLocaleString('en-IN')}</p>
                   </div>
                   
                   {/* Budget Progress (if budget exists) */}
                   {cat.budget !== undefined && (
                     <>
-                      <div className="text-xs text-[#a8aac5] mb-2 flex justify-between">
+                      <div className="text-xs text-slate-300 mb-2 flex justify-between font-medium">
                         <span>Budget: ₹{cat.budget.toLocaleString('en-IN')}</span>
-                        <span className={cat.remaining! >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]'}>
+                        <span className={cat.remaining! >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
                           {cat.remaining! >= 0 ? '✓' : '✗'} ₹{Math.abs(cat.remaining!).toLocaleString('en-IN')} {cat.remaining! >= 0 ? 'left' : 'over'}
                         </span>
                       </div>
-                      <div className="w-full bg-[#2d3748] rounded-full h-2 mb-3">
+                      <div className="w-full bg-slate-700/50 rounded-full h-3 mb-3 overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all ${
-                            cat.budgetPercent! <= 80 ? 'bg-gradient-to-r from-[#0066cc] to-[#5500cc]' :
-                            cat.budgetPercent! <= 100 ? 'bg-gradient-to-r from-[#f59e0b] to-[#f97316]' :
-                            'bg-gradient-to-r from-[#ef4444] to-[#dc2626]'
+                          className={`h-full rounded-full transition-all font-bold ${
+                            cat.budgetPercent! <= 80 ? 'bg-gradient-to-r from-blue-500 to-purple-500' :
+                            cat.budgetPercent! <= 100 ? 'bg-gradient-to-r from-amber-500 to-orange-500' :
+                            'bg-gradient-to-r from-rose-500 to-red-600'
                           }`}
                           style={{ width: `${Math.min(cat.budgetPercent!, 100)}%` }}
                         />
@@ -353,19 +356,19 @@ export default function SpendingPage() {
                   )}
                   
                   {/* Spending as % of Total */}
-                  <div className="w-full bg-[#2d3748] rounded-full h-2">
+                  <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all"
                       style={{ width: `${cat.percent}%` }}
                     />
                   </div>
                 </div>
               ))
             ) : (
-              <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 text-center">
-                <p className="text-[#7a7d97]">No expenses yet</p>
-                <p className="text-sm text-[#a8aac5] mt-2">Start tracking your spending to see insights here</p>
-                <Link href="/personalize-plan" className="text-xs text-[#0066cc] hover:text-[#0052a3] mt-3 inline-block">
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-8 text-center shadow-lg">
+                <p className="text-slate-300 font-bold text-lg">📭 No expenses yet</p>
+                <p className="text-sm text-slate-400 mt-2 font-medium">Start tracking spending to see insights</p>
+                <Link href="/personalize-plan" className="text-sm text-purple-400 hover:text-purple-300 mt-4 inline-block font-bold">
                   Set budget targets →
                 </Link>
               </div>
