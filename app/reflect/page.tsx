@@ -2,6 +2,9 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useApp } from '@/lib/context';
+import GoalService, { Goal, GoalProgress } from '@/app/utils/goalService';
+import TransactionService from '@/app/utils/transactionService';
 
 interface BudgetTarget {
   id: number;
@@ -14,49 +17,63 @@ interface BudgetTarget {
   repeat: boolean;
 }
 
-interface Goal {
-  id: number;
-  name: string;
-  target: number;
-  current: number;
-  icon: string;
-  source: 'custom' | 'budget';
-}
-
 export default function ReflectPage() {
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: 1, name: 'Emergency Fund', target: 5000, current: 2500, icon: '🏠', source: 'custom' },
-    { id: 2, name: 'Vacation', target: 3000, current: 1200, icon: '✈️', source: 'custom' },
-    { id: 3, name: 'Car Down Payment', target: 10000, current: 4500, icon: '🚗', source: 'custom' },
-  ]);
+  const { user } = useApp();
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goalProgresses, setGoalProgresses] = useState<GoalProgress[]>([]);
   const [budgetTargets, setBudgetTargets] = useState<BudgetTarget[]>([]);
   const [showAddGoal, setShowAddGoal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Load budget targets from localStorage
+  // Load goals and calculate progress
   useEffect(() => {
-    const saved = localStorage.getItem('finora_budget_targets');
-    if (saved) {
-      try {
-        const targets = JSON.parse(saved);
-        setBudgetTargets(targets);
-        
-        // Add budget targets as goals if they don't already exist
-        const budgetGoals: Goal[] = targets.map((t: BudgetTarget) => ({
-          id: 100 + t.id,
-          name: t.category,
-          target: t.amount,
-          current: 0, // Budget targets don't have spending tracked here
-          icon: t.icon,
-          source: 'budget'
-        }));
-        
-        // Don't duplicate - only add budget goals if user wants them visible
-        // For now, we'll show them separately
-      } catch (e) {
-        console.error('Error loading budget targets:', e);
-      }
+    if (!user?.id) {
+      setLoading(false);
+      return;
     }
-  }, []);
+
+    setLoading(true);
+    try {
+      // Load goals
+      const loadedGoals = GoalService.loadGoals(user.id);
+      setGoals(loadedGoals);
+
+      // Calculate progress for each goal
+      const transactions = TransactionService.getTransactions(user.id);
+      const progresses = loadedGoals.map(goal => 
+        GoalService.calculateGoalProgress(goal, transactions)
+      );
+      setGoalProgresses(progresses);
+
+      // Load budget targets
+      const saved = localStorage.getItem('finora_budget_targets');
+      if (saved) {
+        try {
+          const targets = JSON.parse(saved);
+          setBudgetTargets(targets);
+        } catch (e) {
+          console.error('Error loading budget targets:', e);
+        }
+      }
+    } catch (e) {
+      console.error('Error loading goals:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center py-12">
+        <p className="text-white">Loading goals...</p>
+      </div>
+    );
+  }
+
+  const completedGoals = goalProgresses.filter(gp => gp.status === 'completed');
+  const activeGoals = goalProgresses.filter(gp => gp.status !== 'completed');
+  const healthyGoals = activeGoals.filter(gp => gp.onTrack);
+  const atRiskGoals = activeGoals.filter(gp => !gp.onTrack);
 
   return (
     <div className="w-full">
@@ -71,46 +88,128 @@ export default function ReflectPage() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-6">
+      <main className="max-w-md mx-auto px-4 py-6 pb-24">
         {/* Financial Goals Summary */}
         <div className="mb-8">
           <h2 className="text-lg font-bold text-white mb-1">Financial Goals</h2>
-          <p className="text-xs text-[#a8aac5] mb-4">Track your personal goals and financial targets</p>
+          <p className="text-xs text-[#a8aac5] mb-4">Track progress and reach your targets</p>
 
-          {/* Personal Goals */}
-          {goals.length > 0 && (
+          {/* Stats Cards */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-[#0066cc]">{activeGoals.length}</p>
+              <p className="text-xs text-[#a8aac5] mt-1">Active</p>
+            </div>
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-[#10b981]">{healthyGoals.length}</p>
+              <p className="text-xs text-[#a8aac5] mt-1">On Track</p>
+            </div>
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-[#10b981]">{completedGoals.length}</p>
+              <p className="text-xs text-[#a8aac5] mt-1">Completed</p>
+            </div>
+          </div>
+
+          {/* Active Goals */}
+          {activeGoals.length > 0 ? (
             <div className="mb-6">
-              <h3 className="text-sm font-semibold text-[#a8aac5] mb-3">Personal Goals</h3>
+              <h3 className="text-sm font-semibold text-[#a8aac5] mb-3">Active Goals</h3>
               <div className="space-y-3">
-                {goals.map((goal) => {
-                  const pct = (goal.current / goal.target) * 100;
+                {activeGoals.map((progress) => {
+                  const goal = progress.goal;
+                  const daysLeftLabel = progress.daysRemaining > 0 
+                    ? `${progress.daysRemaining} days left`
+                    : 'Time expired';
+                  
                   return (
-                    <div key={goal.id} className="bg-[#141829] border border-[#2d3748] rounded-lg p-4 hover:border-[#0066cc] transition">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{goal.icon}</span>
-                          <div>
-                            <p className="font-bold text-white">{goal.name}</p>
-                            <p className="text-xs text-[#7a7d97]">₹{goal.current.toLocaleString('en-IN')} of ₹{goal.target.toLocaleString('en-IN')}</p>
-                          </div>
+                    <div 
+                      key={goal.id} 
+                      className={`rounded-lg p-4 border-2 transition ${
+                        progress.onTrack 
+                          ? 'bg-[#141829] border-[#2d3748] hover:border-[#0066cc]'
+                          : 'bg-red-500/5 border-red-500/30 hover:border-red-500/50'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-bold text-white">{goal.name}</h3>
+                          <p className={`text-xs mt-1 ${
+                            progress.onTrack ? 'text-green-300' : 'text-red-300'
+                          }`}>
+                            {progress.status === 'completed' 
+                              ? '✓ Completed!' 
+                              : progress.status === 'healthy'
+                              ? '✓ Healthy pace'
+                              : progress.status === 'warning'
+                              ? '⚠️ Behind schedule'
+                              : '🚨 Critical'}
+                          </p>
                         </div>
-                        <p className="text-sm font-bold text-[#0066cc]">{Math.round(pct)}%</p>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-[#0066cc]">{Math.round(progress.progressPercent)}%</p>
+                          <p className="text-xs text-[#a8aac5]">{daysLeftLabel}</p>
+                        </div>
                       </div>
-                      <div className="w-full bg-[#2d3748] rounded-full h-2">
-                        <div 
-                          className="h-full bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-full transition-all" 
-                          style={{width:`${Math.min(pct, 100)}%`}}
-                        ></div>
+
+                      {/* Progress Bar */}
+                      <div className="w-full bg-[#2d3748] rounded-full h-2 mb-3">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            progress.onTrack 
+                              ? 'bg-gradient-to-r from-[#0066cc] to-[#5500cc]'
+                              : 'bg-gradient-to-r from-red-500 to-orange-500'
+                          }`}
+                          style={{ width: `${Math.min(progress.progressPercent, 100)}%` }}
+                        />
                       </div>
-                      <p className="text-xs text-[#a8aac5] mt-2">₹{Math.max(0, goal.target - goal.current).toLocaleString('en-IN')} to go</p>
+
+                      {/* Details */}
+                      <div className="grid grid-cols-2 gap-2 text-xs text-[#a8aac5]">
+                        <div>
+                          <p className="text-[#7a7d97]">Amount</p>
+                          <p className="text-white font-semibold">₹{goal.currentAmount.toLocaleString('en-IN')} / ₹{goal.targetAmount.toLocaleString('en-IN')}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#7a7d97]">Needed/Day</p>
+                          <p className="text-white font-semibold">₹{Math.max(0, progress.averageNeededPerDay).toFixed(0)}</p>
+                        </div>
+                      </div>
+
+                      {/* Recommendation */}
+                      {progress.recommendation && (
+                        <div className="mt-3 p-2 bg-[#1a2855] rounded text-xs text-[#a8aac5]">
+                          <p className="text-[#0066cc] font-semibold mb-1">💡 Tip:</p>
+                          <p>{progress.recommendation}</p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
             </div>
+          ) : (
+            <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-6 text-center mb-6">
+              <p className="text-[#7a7d97]">No active goals yet</p>
+              <p className="text-sm text-[#a8aac5] mt-2">Create your first goal to start tracking progress</p>
+            </div>
           )}
 
-          {/* Budget Targets from Personalize Plan */}
+          {/* Completed Goals */}
+          {completedGoals.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-[#10b981] mb-3">🎉 Completed ({completedGoals.length})</h3>
+              <div className="space-y-2">
+                {completedGoals.map((progress) => (
+                  <div key={progress.goal.id} className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <p className="font-semibold text-white">{progress.goal.name}</p>
+                    <p className="text-xs text-green-300 mt-1">✓ Goal completed!</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Budget Targets */}
           {budgetTargets.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -119,22 +218,17 @@ export default function ReflectPage() {
                   Edit →
                 </Link>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {budgetTargets.map((target) => (
-                  <div key={target.id} className="bg-[#1a2855] border border-[#2d3748] rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
+                  <div key={target.id} className="bg-[#1a2855] border border-[#2d3748] rounded-lg p-3">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{target.icon}</span>
-                        <div>
-                          <p className="font-semibold text-white text-sm">{target.category}</p>
-                          <p className="text-xs text-[#7a7d97]">{target.group} • {target.frequency}</p>
-                        </div>
+                        <span className="text-lg">{target.icon}</span>
+                        <p className="font-semibold text-white text-sm">{target.category}</p>
                       </div>
                       <p className="font-bold text-[#0066cc]">₹{target.amount.toLocaleString('en-IN')}</p>
                     </div>
-                    {target.dueDate && (
-                      <p className="text-xs text-[#a8aac5]">Due: {target.dueDate}</p>
-                    )}
+                    <p className="text-xs text-[#7a7d97] mt-1">{target.group} • {target.frequency}</p>
                   </div>
                 ))}
               </div>
@@ -142,20 +236,8 @@ export default function ReflectPage() {
           )}
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-[#0066cc]">{goals.length}</p>
-            <p className="text-xs text-[#a8aac5] mt-1">Personal Goals</p>
-          </div>
-          <div className="bg-[#141829] border border-[#2d3748] rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-[#10b981]">{budgetTargets.length}</p>
-            <p className="text-xs text-[#a8aac5] mt-1">Budget Targets</p>
-          </div>
-        </div>
-
         {/* Action Buttons */}
-        <div className="space-y-2">
+        <div className="space-y-2 fixed bottom-24 left-4 right-4 max-w-md mx-auto">
           <button 
             onClick={() => setShowAddGoal(!showAddGoal)}
             className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white py-3 rounded-lg font-semibold transition"
