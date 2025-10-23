@@ -20,28 +20,29 @@ export default function BottomNavbar() {
 
   return (
     <nav 
-      className="bg-[#0a0e27]/95 backdrop-blur border border-[#2d3748] rounded-2xl shadow-lg"
+      className="w-full bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] shadow-xl"
       style={{
         position: 'fixed',
-        bottom: '1rem',
-        right: '1rem',
+        bottom: 0,
+        left: 0,
+        right: 0,
         zIndex: 50,
       }}
     >
-      <div className="px-4 py-3 flex justify-center items-center gap-1">
+      <div className="flex justify-around items-center w-full px-2 py-3">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 flex-1 ${
+            className={`flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-lg transition-all duration-200 flex-1 ${
               isActive(item.href)
                 ? 'text-[#0066cc] bg-[#0066cc]/15'
                 : 'text-[#7a7d97] hover:text-white hover:bg-[#1a1f3a]/60'
             }`}
             title={item.label}
           >
-            <span className="text-xl">{item.icon}</span>
-            <span className="text-[7px] font-bold leading-tight text-center whitespace-nowrap">{item.short || item.label}</span>
+            <span className="text-lg">{item.icon}</span>
+            <span className="text-[10px] font-semibold leading-tight text-center whitespace-nowrap">{item.short}</span>
           </Link>
         ))}
       </div>
