@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/context';
+import BudgetAlertComponent from '@/components/BudgetAlert';
+import BudgetAlertService, { BudgetStatus } from '@/app/utils/budgetAlertService';
 
 const categoryIcons: Record<string, string> = {
   Groceries: '🛒',
@@ -37,9 +39,11 @@ interface CategoryWithBudget {
 }
 
 export default function SpendingPage() {
-  const { transactions, loading } = useApp();
+  const { transactions, loading, user } = useApp();
   const [categorySpending, setCategorySpending] = useState<CategoryWithBudget[]>([]);
   const [budgetTargets, setBudgetTargets] = useState<BudgetTarget[]>([]);
+  const [budgetAlerts, setBudgetAlerts] = useState<BudgetStatus[]>([]);
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
 
   // Load budget targets from localStorage
   useEffect(() => {
@@ -89,7 +93,25 @@ export default function SpendingPage() {
       .sort((a, b) => b.amount - a.amount);
 
     setCategorySpending(spending);
-  }, [transactions, budgetTargets]);
+
+    // Check budget alerts
+    if (budgetTargets.length > 0) {
+      const alerts = BudgetAlertService.checkAllBudgets(budgetTargets, transactions);
+      setBudgetAlerts(alerts);
+      
+      // Save to history if user is logged in
+      if (user?.id) {
+        BudgetAlertService.saveAlertHistory(user.id, BudgetAlertService.getActiveAlerts(alerts));
+      }
+    }
+  }, [transactions, budgetTargets, user?.id]);
+
+  const handleDismissAlert = (categoryName: string) => {
+    setDismissedAlerts(prev => new Set(prev).add(categoryName));
+  };
+
+  // Filter alerts to exclude dismissed ones
+  const visibleAlerts = budgetAlerts.filter(alert => !dismissedAlerts.has(alert.category));
 
   if (loading) {
     return (
@@ -128,6 +150,16 @@ export default function SpendingPage() {
             💰 Add New Transaction
           </button>
         </Link>
+
+        {/* Budget Alerts */}
+        {visibleAlerts.length > 0 && (
+          <div className="mb-8">
+            <BudgetAlertComponent 
+              budgetStatuses={visibleAlerts} 
+              onDismiss={handleDismissAlert}
+            />
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4 mb-8">
