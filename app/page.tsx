@@ -245,7 +245,10 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[#0a0e27]/95 backdrop-blur border-b border-[#2d3748]">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-white">Finora</h1>
+          <div>
+            <h1 className="text-lg font-bold text-white">Finora</h1>
+            <p className="text-xs text-[#7a7d97]">v2.0.0 • Phase 2 Complete</p>
+          </div>
           <div className="flex items-center gap-3">
             {isSetupComplete && (
               <button
