@@ -37,13 +37,22 @@ export interface BudgetTracking {
 
 const ANALYTICS_API = process.env.NEXT_PUBLIC_ANALYTICS_API || "http://localhost:8081";
 
+// Debug: log the API URL being used
+if (typeof window !== "undefined") {
+  console.log("NEXT_PUBLIC_ANALYTICS_API:", process.env.NEXT_PUBLIC_ANALYTICS_API);
+  console.log("Using Analytics API:", ANALYTICS_API);
+}
+
 class AnalyticsService {
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await fetch(`${ANALYTICS_API}/api/analytics/health`, {
+      const url = `${ANALYTICS_API}/api/analytics/health`;
+      console.log("Checking health at:", url);
+      const response = await fetch(url, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
+      console.log("Health check response:", response.status);
       return response.ok;
     } catch (error) {
       console.warn("Analytics service unavailable:", error);
