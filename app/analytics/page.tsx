@@ -32,11 +32,15 @@ export default function AnalyticsPage() {
   const [insights, setInsights] = useState<InsightData | null>(null);
 
   useEffect(() => {
+    console.log('Analytics page mounted, user:', user);
     loadAnalyticsData();
   }, [user?.id]);
 
   const loadAnalyticsData = async () => {
+    console.log('loadAnalyticsData called, user?.id:', user?.id);
+    
     if (!user?.id) {
+      console.log('No user ID, setting error');
       setError('User not logged in');
       setLoading(false);
       return;
@@ -47,7 +51,9 @@ export default function AnalyticsPage() {
       setError(null);
 
       // Check if service is available
+      console.log('Checking analytics service health...');
       const available = await analyticsService.checkHealth();
+      console.log('Service available:', available);
       setServiceAvailable(available);
 
       if (!available) {
