@@ -357,10 +357,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const uid = userId || state.user?.id;
     if (!uid) return;
     try {
+      // Try to fetch from API first
       const transactions = await finoraAPI.getTransactions(uid);
-      setState(prev => ({ ...prev, transactions }));
+      
+      // Also load from localStorage as fallback/additional data
+      const localKey = `finora_transactions_${uid}`;
+      const localTransactions = localStorage.getItem(localKey);
+      
+      if (localTransactions) {
+        try {
+          const parsedLocal = JSON.parse(localTransactions);
+          // Merge API and local transactions, avoiding duplicates
+          const merged = [
+            ...transactions,
+            ...parsedLocal.filter((lt: any) => !transactions.find((at: any) => at.id === lt.id))
+          ];
+          setState(prev => ({ ...prev, transactions: merged }));
+          console.log('Transactions loaded: API +', transactions.length, 'Local +', parsedLocal.length);
+        } catch (e) {
+          console.error('Error parsing local transactions:', e);
+          setState(prev => ({ ...prev, transactions }));
+        }
+      } else {
+        setState(prev => ({ ...prev, transactions }));
+      }
     } catch (error) {
-      console.error('Failed to fetch transactions:', error);
+      console.error('Failed to fetch transactions from API, trying localStorage...', error);
+      
+      // Fallback: load only from localStorage if API fails
+      const uid = userId || state.user?.id;
+      const localKey = `finora_transactions_${uid}`;
+      const localTransactions = localStorage.getItem(localKey);
+      
+      if (localTransactions) {
+        try {
+          const parsedLocal = JSON.parse(localTransactions);
+          setState(prev => ({ ...prev, transactions: parsedLocal }));
+          console.log('Transactions loaded from localStorage only:', parsedLocal.length);
+        } catch (e) {
+          console.error('Error parsing local transactions:', e);
+        }
+      }
     }
   };
 

@@ -71,26 +71,42 @@ export default function AddTransactionPage() {
     setLoading(true);
 
     try {
-      const transaction: Transaction = {
+      // Extract category name (remove emoji if present)
+      const categoryName = formData.category.includes(' ') 
+        ? formData.category.split(' ').slice(1).join(' ')
+        : formData.category;
+
+      const transaction = {
         id: Date.now(),
-        date: formData.date,
-        category: formData.category.split(' ')[1] || formData.category,
-        description: formData.description,
+        user_id: user.id,
+        account_id: 1, // Default account
         amount: parseFloat(formData.amount),
-        type: formData.type,
-        paymentMethod: formData.paymentMethod,
+        transaction_type: formData.type,
+        category: categoryName,
+        description: formData.description,
+        date: formData.date,
+        created_at: new Date().toISOString(),
       };
 
-      // Store in localStorage
+      console.log('Saving transaction:', transaction);
+
+      // Store in localStorage as fallback
       const key = `finora_transactions_${user.id}`;
       const existing = localStorage.getItem(key);
       const transactions = existing ? JSON.parse(existing) : [];
       transactions.push(transaction);
       localStorage.setItem(key, JSON.stringify(transactions));
+      
+      console.log('Transaction saved to localStorage');
 
-      // Also update global transactions if addTransaction exists
+      // Call addTransaction if it exists in context
       if (addTransaction) {
-        addTransaction(transaction);
+        try {
+          await addTransaction(transaction);
+          console.log('Transaction added via context');
+        } catch (err) {
+          console.log('Context addTransaction failed (OK - using localStorage):', err);
+        }
       }
 
       setSuccess(true);

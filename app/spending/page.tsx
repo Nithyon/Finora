@@ -57,16 +57,49 @@ export default function SpendingPage() {
     }
   }, []);
 
+  // Ensure transactions are loaded from localStorage if not in context
+  useEffect(() => {
+    if (user?.id && (!transactions || transactions.length === 0)) {
+      const localKey = `finora_transactions_${user.id}`;
+      const localTransactions = localStorage.getItem(localKey);
+      
+      if (localTransactions) {
+        try {
+          const parsed = JSON.parse(localTransactions);
+          console.log('Loaded transactions from localStorage:', parsed.length);
+          // Note: This won't update the context directly, but the calculation below will use what's in context
+        } catch (e) {
+          console.error('Error parsing local transactions:', e);
+        }
+      }
+    }
+  }, [user?.id, transactions]);
+
   // Calculate spending by category and merge with budget targets
   useEffect(() => {
-    if (!transactions || transactions.length === 0) {
+    let txToUse = transactions || [];
+    
+    // If no transactions from context, try localStorage
+    if (txToUse.length === 0 && user?.id) {
+      const localKey = `finora_transactions_${user.id}`;
+      const localTransactions = localStorage.getItem(localKey);
+      if (localTransactions) {
+        try {
+          txToUse = JSON.parse(localTransactions);
+        } catch (e) {
+          console.error('Error parsing local transactions:', e);
+        }
+      }
+    }
+
+    if (!txToUse || txToUse.length === 0) {
       setCategorySpending([]);
       return;
     }
 
     const expensesByCategory: Record<string, number> = {};
     
-    transactions.forEach((tx: any) => {
+    txToUse.forEach((tx: any) => {
       if (tx.transaction_type === 'expense') {
         const category = tx.category || 'Other';
         expensesByCategory[category] = (expensesByCategory[category] || 0) + tx.amount;
@@ -96,7 +129,7 @@ export default function SpendingPage() {
 
     // Check budget alerts
     if (budgetTargets.length > 0) {
-      const alerts = BudgetAlertService.checkAllBudgets(budgetTargets, transactions);
+      const alerts = BudgetAlertService.checkAllBudgets(budgetTargets, txToUse);
       setBudgetAlerts(alerts);
       
       // Save to history if user is logged in
