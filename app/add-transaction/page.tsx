@@ -82,13 +82,18 @@ export default function AddTransactionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.amount || !formData.description) {
-      alert('Please fill in all fields');
+    if (!user?.id) {
+      alert('❌ Please log in first');
       return;
     }
 
-    if (!user?.id) {
-      alert('Please log in first');
+    if (!formData.description || formData.description.trim() === '') {
+      alert('❌ Please enter a description');
+      return;
+    }
+
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      alert('❌ Please enter a valid amount');
       return;
     }
 
@@ -139,7 +144,7 @@ export default function AddTransactionPage() {
       }, 1500);
     } catch (error) {
       console.error('Error adding transaction:', error);
-      alert('Failed to add transaction');
+      alert('❌ Failed to add transaction');
     } finally {
       setLoading(false);
     }
