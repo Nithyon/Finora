@@ -165,6 +165,19 @@ export default function AnalyticsPage() {
         </div>
       )}
 
+      {/* Debug Info */}
+      {transactions.length > 0 && (
+        <div className="bg-blue-500/20 border border-blue-500 rounded-lg p-4 mb-6">
+          <p className="text-blue-200 text-sm">✅ Loaded {transactions.length} transactions • Charts calculating...</p>
+        </div>
+      )}
+
+      {transactions.length === 0 && !loading && (
+        <div className="bg-yellow-500/20 border border-yellow-500 rounded-lg p-4 mb-6">
+          <p className="text-yellow-200 text-sm">⚠️ No transactions found. Attempting to load demo data...</p>
+        </div>
+      )}
+
       {/* Month Selector */}
       <div className="mb-6 flex gap-2">
         <select
@@ -423,6 +436,14 @@ export default function AnalyticsPage() {
           <Link href="/add-transaction" className="text-blue-400 hover:text-blue-300">
             Add your first transaction →
           </Link>
+        </div>
+      )}
+
+      {/* Fallback if charts don't render */}
+      {transactions.length > 0 && spendingByCategory.length === 0 && budgetComparison.length === 0 && spendingTrend.length === 0 && (
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-6 text-center">
+          <p className="text-gray-400 mb-2">📊 Charts calculating...</p>
+          <p className="text-gray-500 text-sm">Transactions: {transactions.length} | Budget Targets: {budgets.length}</p>
         </div>
       )}
     </div>
