@@ -34,6 +34,15 @@ export default function LoginPage() {
     // Store auth token in localStorage
     localStorage.setItem('auth_token', 'mock_token_' + Date.now());
     localStorage.setItem('user_email', email);
+    
+    // Also store user object for AppContext
+    const mockUser = {
+      id: Math.floor(Math.random() * 10000),
+      email: email,
+      name: email.split('@')[0],
+      role: 'user'
+    };
+    localStorage.setItem('finora_user', JSON.stringify(mockUser));
 
     setLoading(false);
     router.push('/');
