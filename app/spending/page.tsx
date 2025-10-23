@@ -116,11 +116,18 @@ export default function SpendingPage() {
 
       <div className="max-w-md mx-auto px-4 pt-6">
         {/* Total Spending Summary Card */}
-        <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-8">
+        <div className="bg-gradient-to-r from-[#0066cc] to-[#5500cc] rounded-xl p-6 mb-6">
           <p className="text-xs font-bold text-[#e0e7ff] uppercase tracking-wider mb-2">Total Spending This Month</p>
           <p className="text-4xl font-bold text-white mb-2">₹{totalSpent.toLocaleString('en-IN')}</p>
           <p className="text-sm text-[#e0e7ff]">Track your spending across all categories</p>
         </div>
+
+        {/* Add Transaction Button */}
+        <Link href="/add-transaction" className="block mb-8">
+          <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-lg transition shadow-lg">
+            💰 Add New Transaction
+          </button>
+        </Link>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4 mb-8">
