@@ -1,0 +1,4 @@
+[build]
+builder = "dockerfile"
+dockerfile = "backend-java/Dockerfile"
+context = "backend-java"
