@@ -19,8 +19,16 @@ export default function BottomNavbar() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0e27]/95 backdrop-blur border-t border-[#2d3748] z-[9999]">
-      <div className="w-full max-w-md mx-auto px-2 py-3 flex justify-around items-center gap-1">
+    <nav 
+      className="bg-[#0a0e27]/95 backdrop-blur border border-[#2d3748] rounded-2xl shadow-lg"
+      style={{
+        position: 'fixed',
+        bottom: '1rem',
+        right: '1rem',
+        zIndex: 50,
+      }}
+    >
+      <div className="px-4 py-3 flex justify-center items-center gap-1">
         {navItems.map((item) => (
           <Link
             key={item.href}

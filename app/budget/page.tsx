@@ -85,7 +85,7 @@ export default function BudgetPage() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pb-24 pt-6">
+      <main className="max-w-md mx-auto px-4 pt-6">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-1">Budget Plan 📋</h2>
           <p className="text-sm text-[#a8aac5]">Monthly spending limits</p>
