@@ -1,6 +1,6 @@
-# Ignore everything except backend-java
+# Ignore everything except java-backend
 /*
-!/backend-java
+!/java-backend
 .git/
 .next/
 node_modules/
