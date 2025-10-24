@@ -49,6 +49,14 @@ export default function ChatbotPage() {
       };
     }
 
+    // Check for "my budget" or "current budget" variations
+    if ((input.includes('my') || input.includes('current') || input.includes('my own')) && input.includes('budget')) {
+      return {
+        content: `📊 Your Budget - Let's Create One!\n\nGreat question! To see and manage YOUR budget, you need to:\n\n1️⃣ SET UP YOUR BUDGET:\nGo to "Personalize Your Plan" and tell us:\n• How much money you make per month\n• Your main expenses\n• Your financial goals\n\n2️⃣ USE THE 50/30/20 RULE:\nWe'll automatically calculate:\n• 50% for NEEDS (rent, food, utilities)\n• 30% for WANTS (fun, entertainment)\n• 20% for SAVINGS (emergency fund)\n\n3️⃣ TRACK YOUR SPENDING:\nAfter setting your budget:\n• Go to "Spending" to see where your money goes\n• Add transactions as you spend\n• See real-time budget vs actual spending\n• Get alerts if you're overspending\n\n4️⃣ MANAGE YOUR BUDGET:\n• Edit categories anytime\n• Adjust spending limits\n• Set savings goals\n• View spending trends\n\n💡 Example:\nIf you earn ₹50,000/month:\n• NEEDS budget: ₹25,000\n• WANTS budget: ₹15,000\n• SAVINGS goal: ₹10,000\n\n🚀 Let's get started!`,
+        link: { text: '📊 Personalize Your Plan', path: '/personalize-plan' }
+      };
+    }
+
     if (input.includes('budget')) {
       return {
         content: `📊 What is a Budget? (Simple Explanation)\n\nA budget is just a PLAN for your money. Like a roadmap!\n\n💭 Think of it like this:\nImagine you have ₹1,000 to spend. A budget helps you decide:\n• ₹500 for food (NEEDS - essential)\n• ₹300 for movies (WANTS - fun)\n• ₹200 in savings (FUTURE - safety net)\n\n📌 The 50/30/20 Rule (Best Method):\n• 50% for NEEDS: Rent, food, utilities, transportation, insurance\n• 30% for WANTS: Entertainment, dining out, hobbies, shopping\n• 20% for SAVINGS: Emergency fund, debt payment, investments\n\n💡 Real Example (₹50,000/month salary):\n• NEEDS: ₹25,000 (housing, groceries)\n• WANTS: ₹15,000 (Netflix, dining out, fun)\n• SAVINGS: ₹10,000 (emergency fund, investments)\n\n✅ Why budgeting works:\n✓ You know where your money goes\n✓ You can enjoy life without guilt\n✓ You'll have emergency money\n✓ You'll reach your financial goals faster\n✓ Less financial stress!\n\n🎯 Start today: Track what you spent yesterday!`
@@ -95,6 +103,28 @@ export default function ChatbotPage() {
         content: `👋 Hey there!\n\nI'm your Finora Financial Assistant!\n\n💬 I can help you understand:\n• What is budgeting?\n• How much should I save?\n• What are needs vs wants?\n• How much can I spend?\n• How to set financial goals?\n• Emergency funds explained\n• Money-saving tips\n• And more!\n\n💡 Try asking me:\n• "What is a budget?"\n• "I have $10k, how much can I spend?"\n• "How much should I save?"\n• "How do I set goals?"\n\nWhat would you like to learn? 😊`,
         link: { text: '🚀 Get Started', path: '/personalize-plan' }
       };
+    }
+
+    // Help with app features
+    if (input.includes('how do i') || input.includes('how to') || input.includes('how can i')) {
+      if (input.includes('track') || input.includes('add transaction') || input.includes('spending')) {
+        return {
+          content: `📊 How to Track Your Spending\n\nIt's super easy! Follow these steps:\n\n1️⃣ ADD A TRANSACTION:\n• Go to "Add Transaction"\n• Enter the amount you spent\n• Choose the category (Food, Transport, etc.)\n• Click Save\n• It automatically appears in your Spending page!\n\n2️⃣ VIEW YOUR SPENDING:\n• Go to "Spending" page\n• See all your expenses by category\n• View spending breakdown (what % each category is)\n• See budget vs actual spending\n• Get alerts if you're overspending\n\n3️⃣ FILTER BY ACCOUNT:\n• If you have virtual accounts\n• Select which account to view\n• See spending for that specific account\n\n4️⃣ TRACK TRENDS:\n• Check spending patterns\n• See which categories you spend most on\n• Plan better for next month\n\n💡 Pro tips:\n✓ Add transactions immediately (don't wait!)\n✓ Use honest category names\n✓ Review weekly to spot patterns\n✓ Set budget limits for each category\n\n🎯 Try it now!`,
+          link: { text: '💳 Add Transaction', path: '/add-transaction' }
+        };
+      }
+      if (input.includes('goal') || input.includes('target') || input.includes('plan')) {
+        return {
+          content: `🎯 How to Set Goals in Finora\n\nSetting and tracking goals is the secret to financial success!\n\n1️⃣ OPEN YOUR PLAN:\n• Click "Personalize Your Plan"\n• This is where you set all your goals\n\n2️⃣ SET FINANCIAL GOALS:\n• Short-term (next 3 months)\n• Medium-term (1 year)\n• Long-term (3+ years)\n\n3️⃣ DEFINE YOUR GOALS:\n• Save for vacation: ₹50,000\n• Emergency fund: ₹25,000\n• New phone: ₹15,000\n• Car down payment: ₹200,000\n\n4️⃣ TRACK PROGRESS:\n• Go to "Reflect" or "Analytics"\n• See your progress toward goals\n• Get motivated as you see numbers grow!\n\n5️⃣ REVIEW & ADJUST:\n• Check progress monthly\n• Celebrate milestones\n• Adjust goals if needed\n\n💡 Goal-Setting Tips:\n✓ Start with ONE goal\n✓ Make it specific (amount + date)\n✓ Break into monthly steps\n✓ Automate the savings\n✓ Track progress weekly\n\n🚀 What goal would you like to set?`,
+          link: { text: '🎯 Set Your Goals', path: '/reflect' }
+        };
+      }
+      if (input.includes('account') || input.includes('virtual')) {
+        return {
+          content: `🏦 How to Use Virtual Accounts\n\nVirtual accounts help you organize money for different purposes!\n\n1️⃣ CREATE AN ACCOUNT:\n• Go to "Accounts" page\n• Click "Create New Account"\n• Name it: Savings, Vacation, Emergency, etc.\n• Set opening balance\n• Done!\n\n2️⃣ ACCOUNT TYPES:\n• Savings Account\n• Checking Account\n• Investment Account\n• Business Account\n• Vacation Fund\n• Emergency Fund\n\n3️⃣ MANAGE YOUR ACCOUNTS:\n• Deposit: Add money to account\n• Withdraw: Take money out\n• Transfer: Move money between accounts\n• View balance anytime\n\n4️⃣ TRACK SEPARATELY:\n• Each account shows balance\n• Filter spending by account\n• See which account has most money\n• Better control of finances\n\n💡 Example Accounts:\n• Emergency Fund: ₹10,000\n• Vacation Fund: ₹5,000\n• Regular Checking: ₹15,000\n• Investment Account: ₹8,000\n\n🚀 Create your first account now!`,
+          link: { text: '🏦 Manage Accounts', path: '/accounts' }
+        };
+      }
     }
 
     // DEFAULT - I couldn't understand
