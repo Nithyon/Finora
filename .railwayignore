@@ -1,3 +1,5 @@
-# Ignore everything except java-backend directory
-/*
-!/java-backend
+# Only deploy java-backend directory to Railway
+# Ignore all files except in java-backend
+*
+!java-backend
+!java-backend/**
