@@ -18,7 +18,7 @@ export default function ChatbotPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `👋 Hey! I'm your Finora Financial Assistant!\n\nI'm here to help you understand money and make smarter financial decisions.\n\n💬 You can ask me about:\n• How to create a budget\n• Understanding spending (needs vs wants)\n• How much money to save\n• Setting financial goals\n• Building an emergency fund\n• Money-saving tips\n• And much more!\n\nJust ask me anything about your finances, and I'll explain it in simple terms! 😊`,
+      content: `👋 Hey! I'm Your Finora Support Assistant!\n\nI'm here 24/7 to help you navigate the app and understand money management.\n\n🎯 WHAT I CAN DO:\n\n📊 Help with Budgeting\n� Guide you through Spending tracking\n🏦 Explain Virtual Accounts\n🎯 Help you Set Goals\n💡 Share Money-Saving Tips\n📈 Explain Analytics & Trends\n🚨 Explain Emergency Funds\n🔍 Answer any question about Finora\n\n💬 JUST ASK ME ANYTHING!\n\nNo matter how you phrase it:\n• \"How do I track spending?\"\n• \"Where to add transaction?\"\n• \"Budget help needed\"\n• \"Emergency fund?\"\n• \"Goal setting?\"\n• \"Save money tips?\"\n• \"Create account?\"\n• Or literally any question!\n\n🚀 I'll understand and guide you through the app, step by step!\n\nWhat do you need help with? 😊`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -31,6 +31,64 @@ export default function ChatbotPage() {
 
   const generateResponse = (userInput: string): { content: string; link?: NavigationLink } => {
     const input = userInput.toLowerCase().trim();
+
+    // KEYWORD MATCHING - INTELLIGENT SUPPORT ASSISTANT
+    // This handles questions by understanding keywords regardless of how they're phrased
+    
+    // SPENDING & TRACKING KEYWORDS
+    if (input.match(/spend|spending|expense|track|transaction|add|record|log|how much|money go/)) {
+      if (input.match(/where|track|add|record|log|see|view|spending/)) {
+        return {
+          content: `📊 Track Your Spending - Complete Guide\n\n🎯 QUICK START:\n1. Click "Add Transaction" button\n2. Enter amount spent\n3. Pick category (Food, Transport, etc.)\n4. Save - Done!\n\n📍 VIEW YOUR SPENDING:\n• Go to Spending page\n• See all expenses by category\n• View breakdown (% for each category)\n• Compare vs budget\n• Get alerts if overspending\n\n💡 PRO TIPS:\n✓ Add immediately - don't wait\n✓ Choose accurate categories\n✓ Review weekly for patterns\n✓ Set budget limits per category\n✓ Use categories for planning\n\n🔍 FEATURES:\n• Filter by account type\n• See spending trends\n• Budget vs actual comparison\n• Category breakdown\n• Spending velocity alerts\n\n📌 REMEMBER:\n→ Every transaction = Better insights\n→ More data = Better budgeting\n→ Better budgeting = More money saved!`,
+          link: { text: '💳 Add Transaction Now', path: '/add-transaction' }
+        };
+      }
+      
+      if (input.match(/budget|allocation|spend|how much/)) {
+        return {
+          content: `💰 Budget Planning - The 50/30/20 Rule\n\n📊 SIMPLE BREAKDOWN:\nFor every ₹100 you earn:\n• ₹50 → NEEDS (house, food, bills)\n• ₹30 → WANTS (fun, entertainment)\n• ₹20 → SAVINGS (emergency fund)\n\n💡 EXAMPLE - ₹50,000/month:\n• Needs: ₹25,000 (housing, groceries)\n• Wants: ₹15,000 (dining, hobbies, Netflix)\n• Savings: ₹10,000 (emergency fund)\n\n🎯 YOUR MONTHLY SPENDING:\n✓ You can spend: ₹40,000\n✓ Must save: ₹10,000\n✓ You're balanced and safe\n\n✅ WHY THIS WORKS:\n• Bills are always covered\n• You have fun money\n• Building emergency fund\n• Stress-free finances\n\n🚀 NEXT STEPS:\n1. Calculate your numbers\n2. Set up spending limits\n3. Track actual spending\n4. Adjust as needed\n5. Review monthly`,
+          link: { text: '📊 Personalize Your Plan', path: '/personalize-plan' }
+        };
+      }
+    }
+
+    // GOALS & SAVINGS KEYWORDS
+    if (input.match(/goal|target|save|savings|future|objective|plan|want|dream/)) {
+      if (input.match(/set|create|make|how|build/)) {
+        return {
+          content: `🎯 Goal Setting - Achieve Your Dreams\n\n💭 WHAT ARE GOALS?\nThings you want to achieve with money:\n• Short: Holiday (1-3 months)\n• Medium: Car down payment (1 year)\n• Long: House, retirement (5+ years)\n\n📝 HOW TO SET GOALS:\n1. Pick specific amount (₹5,000, ₹50,000)\n2. Choose target date (Dec 2025)\n3. Break into monthly steps\n4. Automate the savings\n5. Track your progress\n\n💡 GOAL EXAMPLES:\n✓ Emergency Fund: ₹10,000 (6 months)\n✓ Vacation: ₹50,000 (12 months)\n✓ New Device: ₹30,000 (3 months)\n✓ Career Upgrade: ₹20,000 (6 months)\n\n📊 PROGRESS TRACKING:\n• Monthly check-ins\n• Watch number grow\n• Stay motivated\n• Celebrate milestones\n\n🚀 PRO TIP:\n\"Pay yourself first\" → Save on payday BEFORE spending!\n\n⏰ TIMELINE:\n• Month 1-2: Set goals + start saving\n• Month 3: Review progress\n• Month 6: Celebrate hitting 50%!\n• Year 1: GOAL ACHIEVED! 🎉`,
+          link: { text: '🎯 Set Your Goals', path: '/reflect' }
+        };
+      }
+    }
+
+    // ACCOUNTS & ORGANIZATION KEYWORDS
+    if (input.match(/account|virtual|bank|organize|separate|divide|deposit|withdraw/)) {
+      if (input.match(/create|make|setup|account|virtual/)) {
+        return {
+          content: `🏦 Virtual Accounts - Organize Your Money\n\n💡 WHAT ARE THEY?\nSeparate "piggy banks" in Finora for different purposes:\n• Savings Account\n• Emergency Fund\n• Vacation Fund\n• Investment Account\n• Checking Account\n\n🎯 WHY USE THEM?\n✓ Money stays organized\n✓ Harder to accidentally spend\n✓ Track different goals easily\n✓ See account balances at glance\n✓ Better money management\n\n📌 HOW TO CREATE:\n1. Go to Accounts page\n2. Click \"Create New Account\"\n3. Name it (e.g., \"Holiday Fund\")\n4. Add starting balance\n5. Done!\n\n💰 ACCOUNT EXAMPLES:\n• Emergency Fund: ₹1,000 base\n• Vacation: ₹0 (save ₹500/month)\n• Gadgets: ₹2,000 (save for tech)\n• Investments: ₹5,000 (grow money)\n• Current: ₹10,000 (daily spending)\n\n🔄 OPERATIONS:\n✓ Deposit: Add money to account\n✓ Withdraw: Take money out\n✓ Transfer: Move between accounts\n✓ View: Check balance anytime\n\n🚀 START TODAY:\nCreate your first account now!`,
+          link: { text: '🏦 Go to Accounts', path: '/accounts' }
+        };
+      }
+    }
+
+    // FINANCIAL CONCEPTS KEYWORDS
+    if (input.match(/emergency|fund|crisis|unexpected|problem|broke|need help/)) {
+      return {
+        content: `🚨 Emergency Fund - Your Financial Safety Net\n\n💭 WHAT IS IT?\nMoney saved for unexpected situations:\n• Car breaks down\n• Medical emergency\n• Job loss\n• Home repair\n• Pet emergency\n\n📊 HOW MUCH TO SAVE:\n\nPHASE 1 (STARTER):\n• Goal: ₹1,000\n• Covers: 80% of emergencies\n• Timeline: 2-3 months\n\nPHASE 2 (GOOD):\n• Goal: ₹3,000-₹5,000\n• Covers: 3 months expenses\n• Timeline: 6 months\n\nPHASE 3 (EXCELLENT):\n• Goal: ₹10,000-₹20,000\n• Covers: 6 months expenses\n• Timeline: 1-2 years\n\n✅ WHY CRITICAL:\n✓ Avoid credit card debt\n✓ Sleep better at night\n✓ Can handle surprises\n✓ Don't burden family\n✓ Peace of mind\n\n🚀 START NOW:\n1. Open separate account\n2. Start with ₹50-₹100\n3. Add monthly\n4. Don't touch it!\n5. Watch it grow`,
+        link: { text: '🏦 Create Emergency Fund', path: '/accounts' }
+      };
+    }
+
+    // APP NAVIGATION KEYWORDS
+    if (input.match(/how do i|how to|help|guide|tutorial|feature|show me|what is/)) {
+      if (input.match(/home|start|beginning|dashboard|overview/)) {
+        return {
+          content: `🏠 Finora Home - Your Financial Dashboard\n\n👋 WELCOME!\nThis is your main hub for money management.\n\n🎯 MAIN FEATURES:\n\n📊 PERSONALIZE YOUR PLAN\n→ Set income & expenses\n→ Define budget limits\n→ Set financial goals\n→ Get tailored advice\n\n💳 SPENDING\n→ Add transactions\n→ Track expenses\n→ View categories\n→ Compare vs budget\n→ Get alerts\n\n📈 ANALYTICS\n→ See spending trends\n→ View charts & graphs\n→ Identify patterns\n→ Plan better\n\n🏦 ACCOUNTS\n→ Create virtual accounts\n→ Organize money\n→ Track balances\n→ Transfer between accounts\n\n🎯 GOALS / REFLECT\n→ Set financial goals\n→ Track progress\n→ Stay motivated\n→ Celebrate wins\n\n💬 CHAT (RIGHT NOW)\n→ Get instant help\n→ Ask anything\n→ Navigate the app\n→ Learn about money\n\n🚀 WHERE TO START:\n1. Set up your plan\n2. Add first transaction\n3. View spending\n4. Set a goal\n5. Use daily!`,
+          link: { text: '📊 Go Home', path: '/' }
+        };
+      }
+    }
 
     // MOST SPECIFIC MATCHES FIRST (longer/more specific queries)
     if ((input.includes('have') && (input.includes('₹1') || input.includes('1 lakh') || input.includes('50000'))) || input.includes('50k') || input.includes('1l')) {
@@ -127,9 +185,26 @@ export default function ChatbotPage() {
       }
     }
 
-    // DEFAULT - I couldn't understand
+    // MONEY SAVING KEYWORDS
+    if (input.match(/save|saving|reduce|cut|cheaper|ways to save|money tips|financial/)) {
+      return {
+        content: `� Money Saving Tips - Keep More Money\n\n🎯 EASY ACTIONS (THIS WEEK):\n1. Track spending for 1 week\n   → See where money goes\n2. Cancel unused subscriptions\n   → Gym you don't use? ₹30 saved!\n3. Cook at home vs dining out\n   → Save ₹200-500/month\n4. Use public transport\n   → Save ₹100-200/month\n5. Wait 24 hours before buying\n   → Skip impulse purchases\n6. Use cashback apps\n   → Get 1-2% back\n\n💪 BIGGER CHANGES (SERIOUS SAVINGS):\n1. Find side gig\n   → Extra ₹200-500/month\n2. Find roommate\n   → Save ₹200-500/month\n3. Switch insurance\n   → Compare rates, save 20%\n4. Cut subscriptions\n   → Remove unused paid apps\n5. Learn DIY\n   → Haircut, nails, maintenance\n\n🚀 THE ULTIMATE STRATEGY:\n"Pay Yourself First"\n→ Save on payday BEFORE spending\n→ Even ₹100/month = ₹1,200/year\n→ Even ₹300/month = ₹3,600/year\n→ Even ₹500/month = ₹6,000/year\n\n✅ START TODAY:\nPick ONE tip and do it now!`,
+        link: { text: '📊 View Spending', path: '/spending' }
+      };
+    }
+
+    // ANALYTICS & INSIGHTS KEYWORDS
+    if (input.match(/analytics|chart|graph|trend|insight|pattern|analysis|data|report/)) {
+      return {
+        content: `📈 Analytics - Understand Your Money\n\n� WHAT YOU'LL SEE:\n• Spending charts & graphs\n• Category breakdowns\n• Monthly trends\n• Spending velocity\n• Budget vs actual\n• Goal progress\n\n💡 HOW TO USE ANALYTICS:\n1. Go to Analytics page\n2. View pie chart of spending\n3. See spending trends over time\n4. Identify high-spending categories\n5. Compare to budget limits\n6. Make better decisions\n\n🎯 INSIGHTS YOU'LL GET:\n✓ Which category you spend most on\n✓ If you're on budget pace\n✓ Spending trends month to month\n✓ Where you can cut expenses\n✓ Progress toward goals\n\n📍 USE ANALYTICS TO:\n• Spot problem areas\n• Find saving opportunities\n• Track progress on goals\n• Make smart budget adjustments\n• Celebrate wins\n\n🔍 EXAMPLE INSIGHTS:\n• \"You're spending 45% on food\"\n• \"That's 5% above budget\"\n• \"Last month was ₹2,000 higher\"\n• \"You're 60% toward your goal!\"\n\n� CHECK ANALYTICS NOW:\nSee your financial picture!`,
+        link: { text: '📈 View Analytics', path: '/analytics' }
+      };
+    }
+
+    // GENERAL HELP - DEFAULT RESPONSE
     return {
-      content: `😕 I couldn't understand that question!\n\nSorry, I didn't quite catch what you're asking.\n\n🎯 You can ask me about:\n\n🚀 APP FEATURES:\n• "How do I get started?"\n• "How do I personalize my plan?"\n• "How do I track spending?"\n• "How do I manage accounts?"\n• "How do I set goals?"\n\n💰 FINANCIAL WISDOM:\n• "What's the 50/30/20 rule?"\n• "How much can I spend?"\n• "How much should I save?"\n• "How do I save money?"\n\n💬 Try rephrasing your question, and I'll do my best to help!\n\nOr feel free to ask anything about budgeting, saving, or using Finora! 😊`
+      content: `👋 Hi! I'm Your Finora Support Assistant!\n\n💬 I CAN HELP YOU WITH:\n\n📊 BUDGETING\n→ Ask: "How to budget?", "50/30/20 rule?", "Plan budget"\n→ I'll explain and guide you\n\n💳 SPENDING\n→ Ask: "How to track spending?", "Add transaction?", "Where to track?"\n→ I'll show you exact steps\n\n🏦 ACCOUNTS\n→ Ask: "Create account?", "Virtual accounts?", "Bank?\"\n→ I'll help you organize money\n\n🎯 GOALS\n→ Ask: "Set goals?", "Plan?", "Future?"\n→ I'll help you achieve dreams\n\n🚨 EMERGENCY FUND\n→ Ask: "Emergency?", "Unexpected?", "Safety?\"\n→ I'll explain why it matters\n\n💡 SAVING MONEY\n→ Ask: "Save money?", "Tips?", "Reduce spending?\"\n→ I'll give actionable ideas\n\n📈 ANALYTICS\n→ Ask: "Charts?", "Trends?", "Insights?\"\n→ I'll explain data visualization\n\n🚀 QUICK START:\nJust ask me anything about:\n• Money management\n• Budgeting\n• Spending\n• Saving\n• Goals\n• Finora features\n\n💡 Try asking:\n\"How do I track spending?\"\n\"How to budget my money?\"\n\"Set a goal for vacation\"\n\"Emergency fund?\"\n\nWhat would you like to learn? 😊`,
+      link: { text: '📊 Personalize Plan', path: '/personalize-plan' }
     };
   };
 
